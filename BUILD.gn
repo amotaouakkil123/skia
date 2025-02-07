@@ -1011,6 +1011,7 @@ optional("gpu") {
         sources += [
           "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
           "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+          "src/gpu/ganesh/gl/android/GrGLMakeNativeInterface_android.cpp",
         ]
         libs += [ "EGL" ]
       }
@@ -1735,7 +1736,7 @@ skia_component("skia") {
     ]
   }
 
-  if (is_linux || is_wasm) {
+  if (is_linux || is_wasm || is_ohos) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
     if (skia_use_egl) {
       libs += [ "GLESv2" ]
@@ -2144,8 +2145,12 @@ if (skia_enable_tools) {
       "tools/text/gpu/TextBlobTools.cpp",
     ]
 
-    libs = []
+    libs = ["hilog_ndk.z"]
     frameworks = []
+
+    if (is_ohos) {
+      sources += ["tools/sk_app/ohos/logger_common.h"]
+    }
 
     if (skia_use_gl) {
       sources += [ "tools/gpu/gl/GLTestContext.cpp" ]
@@ -2162,7 +2167,7 @@ if (skia_enable_tools) {
     }
 
     if (skia_use_gl && target_cpu != "wasm") {
-      if (is_android || skia_use_egl) {
+      if (is_android || is_ohos || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
         libs += [ "EGL" ]
       } else if (is_linux) {
@@ -3037,12 +3042,36 @@ if (skia_enable_tools) {
         "tools/sk_app/ios/main_ios.mm",
       ]
       frameworks += [ "QuartzCore.framework" ]
+    } else if (is_ohos) {
+      sources += [
+        "tools/sk_app/ohos/logger_common.h",
+        "tools/sk_app/ohos/surface_glue_ohos.cpp",
+        "tools/sk_app/ohos/surface_glue_ohos.h",
+        "tools/sk_app/ohos/SkiaAppManager.h",
+        "tools/sk_app/ohos/SkiaAppManager.cpp",
+        "tools/sk_app/ohos/Window_ohos.h",
+        "tools/sk_app/ohos/Window_ohos.cpp"
+      ]
+
+      libs += [
+        "ace_napi.z",
+        "ace_ndk.z",
+        "hilog_ndk.z",
+        "uv",
+        "z",
+        "EGL",
+        "GLESv3"
+      ]
     }
 
     deps = [
       ":tool_utils",
       "tools/window",
     ]
+
+    if (is_ohos) {
+      deps += ["//third_party/imgui"]
+    }
     if (is_android) {
       deps += [ "//third_party/native_app_glue" ]
     }
@@ -3078,7 +3107,7 @@ if (skia_enable_tools) {
   # sk_app can work without GL but viewer always runs raster through a GL window context.
   if (skia_use_gl) {
     test_app("viewer") {
-      is_shared_library = is_android
+      is_shared_library = true
       sources = [
         "tools/viewer/3DSlide.cpp",
         "tools/viewer/AndroidShadowsSlide.cpp",

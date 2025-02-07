@@ -149,6 +149,8 @@
 #include "include/codec/SkRawDecoder.h"
 #endif
 
+#include "tools/sk_app/ohos/logger_common.h"
+
 using namespace skia_private;
 using skwindow::DisplayParams;
 
@@ -258,7 +260,7 @@ static DEFINE_string(pathstrategy, "default",
                      "Path renderer strategy to use. Allowed values are " PATHSTRATEGY_STR ".");
 #endif
 
-#if defined(SK_BUILD_FOR_ANDROID)
+#if defined(SK_BUILD_FOR_ANDROID) || defined(__OHOS__)
 #   define PATH_PREFIX "/data/local/tmp/"
 #else
 #   define PATH_PREFIX ""
@@ -285,9 +287,9 @@ static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.")
 static DEFINE_bool(stats, false, "Display stats overlay on startup.");
 static DEFINE_bool(createProtected, false, "Create a protected native backend (e.g., in EGL).");
 
-#ifndef SK_GL
-static_assert(false, "viewer requires GL backend for raster.")
-#endif
+// #ifndef SK_GL
+// static_assert(false, "viewer requires GL backend for raster.")
+// #endif
 
 static bool is_graphite_backend_type(sk_app::Window::BackendType type) {
 #if defined(SK_GRAPHITE)
@@ -545,7 +547,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomWindowLocation{0.0f, 0.0f}
     , fLastImage(nullptr)
     , fZoomUI(false)
-    , fBackendType(sk_app::Window::kNativeGL_BackendType)
+    , fBackendType(sk_app::Window::kVulkan_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
     // Our UI can only tweak gamma (currently), so start out gamma-only
@@ -582,6 +584,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     CommandLineFlags::Parse(argc, argv);
 #ifdef SK_BUILD_FOR_ANDROID
     SetResourcePath("/data/local/tmp/resources");
+#endif
+
+#if defined(__OHOS__)
+    SetResourcePath("/data/storage/el1/bundle/entry/resources/resfile");
 #endif
 
     initializeEventTracingForTools();
