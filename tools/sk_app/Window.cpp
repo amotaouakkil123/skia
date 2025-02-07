@@ -6,6 +6,7 @@
 */
 
 #include "tools/sk_app/Window.h"
+#include "tools/sk_app/ohos/logger_common.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
@@ -81,6 +82,7 @@ void Window::onUIStateChanged(const SkString& stateName, const SkString& stateVa
 
 void Window::onPaint() {
     if (!fWindowContext) {
+        LOGD("OHOS_WINDOW::Unable to find a window context!");
         return;
     }
     if (!fIsActive) {

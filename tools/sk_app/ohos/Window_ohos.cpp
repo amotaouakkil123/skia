@@ -1,0 +1,94 @@
+#include "tools/sk_app/ohos/Window_ohos.h"
+#include "tools/window/WindowContext.h"
+#include "tools/window/ohos/WindowContextFactory_ohos.h"
+#include "tools/sk_app/ohos/logger_common.h"
+
+nammespace sk_app {
+
+Window* Windows::CreateNativeWindow(void* platformData) {
+    Window_ohos* window = new Window_ohos();
+    if (!window->init((OhosSkiaApp*)platformData)) {
+        LOGD("Window_ohos::Initialization of OHOS window failed");
+        delete window;
+        return nullptr;
+    }
+
+    return window;
+}
+
+bool Window_ohos::init(OhosSkiaApp* ohosSkiaApp) {
+    SkASSERT(ohosSkiaApp);
+    fOhosSkiaApp = ohosSkiaApp;
+    fOhosSkiaApp ->fWindow = this;
+    return true;
+}
+
+void Window_ohos::setTitle(const char* title) {
+    fOhosSkiaApp->setTitle(title);
+}
+
+void Window_ohos::setUIState(const char* state) {
+    fOhosSkiaApp->setUIState(state);
+}
+
+bool Window_ohos::attach(BackendType attachType) {
+    fBackendType = attachType;
+
+    // We delay the creation of fWindowContext until Ohos informs us that
+    // the native window is ready to use.
+    // The creation will be done in initDisplay, which is initiated by kSurfaceCreated event.
+    return true;
+}
+
+void Window_ohos::initDisplay(OHNativeWindow* window) {
+    LOGD("Window_ohos::initDisplay inside initDisplay");
+    SkASSERT(window);
+    // fBackendType = kNativeGL_BackendType;
+    switch (fBackendType) {
+#ifdef SK_GL
+            case kNativeGL_BackendType:
+            default:
+                LOGD("Window_ohos::initDisplay creating a OpenGL windowing context");
+                fWindowContext = skwindow::MakeGLForOhos(window, fRequestedDisplayParams);
+                break;
+#else
+            case kRaster_BackendType:
+                fWindowContext = skwindow::MakeRasterForAndroid(window, fRequestedDisplayParams);
+                break;
+#ifdef SK_VULKAN
+            case kVulkan_BackendType:
+                LOGD("Window_ohos::initDisplay Creating a Vulkan windowing context!");
+                fWindowContext = skwindow::MakeVulkanForOhos(window, fRequestedDisplayParams);
+                break;
+#ifdef SK_GRAPHITE
+            case kGraphiteVulkan_BackendType:
+                fWindowContext = skwindow::MakeGraphiteVulkanForOhos(window,
+                                                                     fRequestedDisplayParams);
+                break;
+#endif
+    }
+    if (!fWindowContext) {
+        LOGD("Window_ohos::initDisplay Completely failed to create a vulkan window");
+    } else {
+        LOGD("Window_ohos::initDisplay We did good!");
+    }
+    this->onBackendCreated();
+}
+
+void Window_ohos::onDisplayDestroyed() {
+    detach();
+}
+
+void Window_ohos::onInval() {
+    // fOhosSkiaApp->postMessage(Message(kContentInvalidated));
+}
+
+void Window_ohos::paintIfNeeded() {
+    if (fWindowContext) { // Check if initDisplay has already been called
+        onPaint();
+    } else {
+        markInvalProcessed();
+    }
+}
+
+} // namespace sk_app
