@@ -81,6 +81,16 @@ VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
         , fUniformBufferDescSetCache(kMaxNumberOfCachedBufferDescSets) {}
 
 VulkanResourceProvider::~VulkanResourceProvider() {
+
+    for (int i = 0; i < fSetLayouts.size(); i++) {
+        if (fSetLayouts[i] != VK_NULL_HANDLE) {
+            VULKAN_CALL(this->vulkanSharedContext()->interface(),
+            DestroyDescriptorSetLayout(this->vulkanSharedContext()->device(),
+                                       fSetLayouts[i],
+                                       nullptr));
+        }
+    }
+
     if (fPipelineCache != VK_NULL_HANDLE) {
         VULKAN_CALL(this->vulkanSharedContext()->interface(),
                     DestroyPipelineCache(this->vulkanSharedContext()->device(),
@@ -591,6 +601,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
     // If any of the load MSAA pipeline creation structures are null then we need to initialize
     // those before proceeding. If the creation of one of them fails, all are assigned to null, so
     // we only need to check one of the structures.
+    skia_private::STArray<3, VkDescriptorSetLayout> setLayouts;
     if (fMSAALoadVertShaderModule   == VK_NULL_HANDLE) {
         SkASSERT(fMSAALoadFragShaderModule  == VK_NULL_HANDLE &&
                  fMSAALoadPipelineLayout == VK_NULL_HANDLE);
@@ -599,11 +610,14 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
                     &fMSAALoadVertShaderModule,
                     &fMSAALoadFragShaderModule,
                     &fMSAALoadShaderStageInfo[0],
-                    &fMSAALoadPipelineLayout)) {
+                    &fMSAALoadPipelineLayout,
+                    setLayouts)) {
             SKGPU_LOG_E("Failed to initialize MSAA load pipeline creation structure(s)");
             return nullptr;
         }
     }
+
+    fSetLayouts = setLayouts;
 
     sk_sp<VulkanRenderPass> compatibleRenderPass =
             this->findOrCreateRenderPassWithKnownKey(renderPassDesc,

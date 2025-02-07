@@ -132,6 +132,7 @@ private:
 
     SkLRUCache<UniformBindGroupKey, sk_sp<VulkanDescriptorSet>,
                UniformBindGroupKey::Hash> fUniformBufferDescSetCache;
+    skia_private::STArray<3, VkDescriptorSetLayout> fSetLayouts;
 };
 
 } // namespace skgpu::graphite

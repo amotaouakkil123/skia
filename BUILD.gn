@@ -498,6 +498,19 @@ optional("fontmgr_win") {
   }
 }
 
+optional("fontmgr_ohos") {
+  enabled = skia_enable_fontmgr_ohos
+
+  # public_defines = [
+  #   "SK_BUILD_FONT_MGR_FOR_OHOS"
+  # ]
+
+  deps = [ "//third_party/jsoncpp" ]
+
+  public = skia_ports_fontmgr_ohos_public
+  sources = skia_ports_fontmgr_ohos_sources
+}
+
 optional("fontmgr_win_gdi") {
   enabled = skia_enable_fontmgr_win_gdi
   public_defines = [ "SK_FONTMGR_GDI_AVAILABLE" ]
@@ -1616,6 +1629,7 @@ skia_component("skia") {
     ":fontmgr_mac_ct",
     ":fontmgr_win",
     ":fontmgr_win_gdi",
+    ":fontmgr_ohos",
     ":gpu",
     ":graphite",
     ":jpeg_encode",
@@ -1735,7 +1749,7 @@ skia_component("skia") {
     ]
   }
 
-  if (is_linux || is_wasm) {
+  if (is_linux || is_wasm || is_ohos) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
     if (skia_use_egl) {
       libs += [ "GLESv2" ]
@@ -2144,8 +2158,12 @@ if (skia_enable_tools) {
       "tools/text/gpu/TextBlobTools.cpp",
     ]
 
-    libs = []
+    libs = ["hilog_ndk.z"]
     frameworks = []
+
+    if (is_ohos) {
+      sources += ["tools/sk_app/ohos/logger_common.h"]
+    }
 
     if (skia_use_gl) {
       sources += [ "tools/gpu/gl/GLTestContext.cpp" ]
@@ -2162,7 +2180,7 @@ if (skia_enable_tools) {
     }
 
     if (skia_use_gl && target_cpu != "wasm") {
-      if (is_android || skia_use_egl) {
+      if (is_android || is_ohos || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
         libs += [ "EGL" ]
       } else if (is_linux) {
@@ -3037,12 +3055,37 @@ if (skia_enable_tools) {
         "tools/sk_app/ios/main_ios.mm",
       ]
       frameworks += [ "QuartzCore.framework" ]
+    } else if (is_ohos) {
+      sources += [
+        "tools/sk_app/ohos/logger_common.h",
+        "tools/sk_app/ohos/surface_glue_ohos.cpp",
+        "tools/sk_app/ohos/surface_glue_ohos.h",
+        "tools/sk_app/ohos/SkiaAppManager.h",
+        "tools/sk_app/ohos/SkiaAppManager.cpp",
+        "tools/sk_app/ohos/Window_ohos.h",
+        "tools/sk_app/ohos/Window_ohos.cpp"
+      ]
+
+      libs += [
+        "ace_napi.z",
+        "ace_ndk.z",
+        "hilog_ndk.z",
+        "uv",
+        "z",
+        "EGL",
+        "GLESv3",
+        "native_window"
+      ]
     }
 
     deps = [
       ":tool_utils",
       "tools/window",
     ]
+
+    if (is_ohos) {
+      deps += ["//third_party/imgui"]
+    }
     if (is_android) {
       deps += [ "//third_party/native_app_glue" ]
     }
@@ -3076,146 +3119,141 @@ if (skia_enable_tools) {
   }
 
   # sk_app can work without GL but viewer always runs raster through a GL window context.
-  if (skia_use_gl) {
-    test_app("viewer") {
-      is_shared_library = is_android
-      sources = [
-        "tools/viewer/3DSlide.cpp",
-        "tools/viewer/AndroidShadowsSlide.cpp",
-        "tools/viewer/AnimBlurSlide.cpp",
-        "tools/viewer/AnimTimer.h",
-        "tools/viewer/AnimatedImageSlide.cpp",
-        "tools/viewer/AnimatedImageSlide.h",
-        "tools/viewer/AnimatedRectsSlide.cpp",
-        "tools/viewer/AnimatedTextSlide.cpp",
-        "tools/viewer/ArcSlide.cpp",
-        "tools/viewer/AtlasSlide.cpp",
-        "tools/viewer/AudioSlide.cpp",
-        "tools/viewer/BisectSlide.cpp",
-        "tools/viewer/BisectSlide.h",
-        "tools/viewer/CameraSlide.cpp",
-        "tools/viewer/ChartSlide.cpp",
-        "tools/viewer/ChineseFlingSlide.cpp",
-        "tools/viewer/ClickHandlerSlide.cpp",
-        "tools/viewer/ClickHandlerSlide.h",
-        "tools/viewer/ClipSlide.cpp",
-        "tools/viewer/ClockSlide.cpp",
-        "tools/viewer/CowboySlide.cpp",
-        "tools/viewer/DegenerateQuadsSlide.cpp",
-        "tools/viewer/DegenerateTwoPtRadialsSlide.cpp",
-        "tools/viewer/FatBitsSlide.cpp",
-        "tools/viewer/FilterBoundsSlide.cpp",
-        "tools/viewer/FitCubicToCircleSlide.cpp",
-        "tools/viewer/FlutterAnimateSlide.cpp",
-        "tools/viewer/GMSlide.cpp",
-        "tools/viewer/GMSlide.h",
-        "tools/viewer/GlyphTransformSlide.cpp",
-        "tools/viewer/GradientsSlide.cpp",
-        "tools/viewer/GraphitePrimitivesSlide.cpp",
-        "tools/viewer/ImGuiLayer.cpp",
-        "tools/viewer/ImGuiLayer.h",
-        "tools/viewer/ImageFilterDAGSlide.cpp",
-        "tools/viewer/ImageSlide.cpp",
-        "tools/viewer/ImageSlide.h",
-        "tools/viewer/LayersSlide.cpp",
-        "tools/viewer/ManyRectsSlide.cpp",
-        "tools/viewer/MaterialShadowsSlide.cpp",
-        "tools/viewer/MegaStrokeSlide.cpp",
-        "tools/viewer/MeshGradientSlide.cpp",
-        "tools/viewer/MeshSlide.cpp",
-        "tools/viewer/MixerSlide.cpp",
-        "tools/viewer/MotionMarkSlide.cpp",
-        "tools/viewer/PatchSlide.cpp",
-        "tools/viewer/PathClipSlide.cpp",
-        "tools/viewer/PathEffectsSlide.cpp",
-        "tools/viewer/PathLerpSlide.cpp",
-        "tools/viewer/PathOverstrokeSlide.cpp",
-        "tools/viewer/PathSlide.cpp",
-        "tools/viewer/PathTessellatorsSlide.cpp",
-        "tools/viewer/PathTextSlide.cpp",
-        "tools/viewer/ProtectedSlide.cpp",
-        "tools/viewer/QuadStrokerSlide.cpp",
-        "tools/viewer/RectanizerSlide.cpp",
-        "tools/viewer/RepeatTileSlide.cpp",
-        "tools/viewer/SBIXSlide.cpp",
-        "tools/viewer/SGSlide.cpp",
-        "tools/viewer/SKPSlide.cpp",
-        "tools/viewer/SKPSlide.h",
-        "tools/viewer/SVGFileSlide.cpp",
-        "tools/viewer/ShadowColorSlide.cpp",
-        "tools/viewer/ShadowReferenceSlide.cpp",
-        "tools/viewer/ShadowUtilsSlide.cpp",
-        "tools/viewer/ShipSlide.cpp",
-        "tools/viewer/SimpleStrokerSlide.cpp",
-        "tools/viewer/SkSLDebuggerSlide.cpp",
-        "tools/viewer/SkSLDebuggerSlide.h",
-        "tools/viewer/SkSLSlide.cpp",
-        "tools/viewer/SkSLSlide.h",
-        "tools/viewer/SkottieSlide.cpp",
-        "tools/viewer/SkottieSlide.h",
-        "tools/viewer/Slide.h",
-        "tools/viewer/SlideDir.cpp",
-        "tools/viewer/SlideDir.h",
-        "tools/viewer/SlidesSlide.cpp",
-        "tools/viewer/StatsLayer.cpp",
-        "tools/viewer/StatsLayer.h",
-        "tools/viewer/StringArtSlide.cpp",
-        "tools/viewer/StrokeVerbSlide.cpp",
-        "tools/viewer/SvgSlide.cpp",
-        "tools/viewer/SvgSlide.h",
-        "tools/viewer/TextBoxSlide.cpp",
-        "tools/viewer/TextureUploadSlide.cpp",
-        "tools/viewer/ThinAASlide.cpp",
-        "tools/viewer/TimingSlide.cpp",
-        "tools/viewer/TouchGesture.cpp",
-        "tools/viewer/TouchGesture.h",
-        "tools/viewer/TypefaceSlide.cpp",
-        "tools/viewer/VariableWidthStrokerSlide.cpp",
-        "tools/viewer/Viewer.cpp",
-        "tools/viewer/Viewer.h",
-        "tools/viewer/XferSlide.cpp",
+  test_app("viewer") {
+    is_shared_library = is_android || is_ohos
+    sources = [
+      "tools/viewer/3DSlide.cpp",
+      "tools/viewer/AndroidShadowsSlide.cpp",
+      "tools/viewer/AnimBlurSlide.cpp",
+      "tools/viewer/AnimTimer.h",
+      "tools/viewer/AnimatedImageSlide.cpp",
+      "tools/viewer/AnimatedImageSlide.h",
+      "tools/viewer/AnimatedRectsSlide.cpp",
+      "tools/viewer/AnimatedTextSlide.cpp",
+      "tools/viewer/ArcSlide.cpp",
+      "tools/viewer/AtlasSlide.cpp",
+      "tools/viewer/AudioSlide.cpp",
+      "tools/viewer/BisectSlide.cpp",
+      "tools/viewer/BisectSlide.h",
+      "tools/viewer/CameraSlide.cpp",
+      "tools/viewer/ChartSlide.cpp",
+      "tools/viewer/ChineseFlingSlide.cpp",
+      "tools/viewer/ClickHandlerSlide.cpp",
+      "tools/viewer/ClickHandlerSlide.h",
+      "tools/viewer/ClipSlide.cpp",
+      "tools/viewer/ClockSlide.cpp",
+      "tools/viewer/CowboySlide.cpp",
+      "tools/viewer/DegenerateQuadsSlide.cpp",
+      "tools/viewer/DegenerateTwoPtRadialsSlide.cpp",
+      "tools/viewer/FatBitsSlide.cpp",
+      "tools/viewer/FilterBoundsSlide.cpp",
+      "tools/viewer/FitCubicToCircleSlide.cpp",
+      "tools/viewer/FlutterAnimateSlide.cpp",
+      "tools/viewer/GMSlide.cpp",
+      "tools/viewer/GMSlide.h",
+      "tools/viewer/GlyphTransformSlide.cpp",
+      "tools/viewer/GradientsSlide.cpp",
+      "tools/viewer/GraphitePrimitivesSlide.cpp",
+      "tools/viewer/ImGuiLayer.cpp",
+      "tools/viewer/ImGuiLayer.h",
+      "tools/viewer/ImageFilterDAGSlide.cpp",
+      "tools/viewer/ImageSlide.cpp",
+      "tools/viewer/ImageSlide.h",
+      "tools/viewer/LayersSlide.cpp",
+      "tools/viewer/ManyRectsSlide.cpp",
+      "tools/viewer/MaterialShadowsSlide.cpp",
+      "tools/viewer/MegaStrokeSlide.cpp",
+      "tools/viewer/MeshGradientSlide.cpp",
+      "tools/viewer/MeshSlide.cpp",
+      "tools/viewer/MixerSlide.cpp",
+      "tools/viewer/MotionMarkSlide.cpp",
+      "tools/viewer/PatchSlide.cpp",
+      "tools/viewer/PathClipSlide.cpp",
+      "tools/viewer/PathEffectsSlide.cpp",
+      "tools/viewer/PathLerpSlide.cpp",
+      "tools/viewer/PathOverstrokeSlide.cpp",
+      "tools/viewer/PathSlide.cpp",
+      "tools/viewer/PathTessellatorsSlide.cpp",
+      "tools/viewer/PathTextSlide.cpp",
+      "tools/viewer/ProtectedSlide.cpp",
+      "tools/viewer/QuadStrokerSlide.cpp",
+      "tools/viewer/RectanizerSlide.cpp",
+      "tools/viewer/RepeatTileSlide.cpp",
+      "tools/viewer/SBIXSlide.cpp",
+      "tools/viewer/SGSlide.cpp",
+      "tools/viewer/SKPSlide.cpp",
+      "tools/viewer/SKPSlide.h",
+      "tools/viewer/SVGFileSlide.cpp",
+      "tools/viewer/ShadowColorSlide.cpp",
+      "tools/viewer/ShadowReferenceSlide.cpp",
+      "tools/viewer/ShadowUtilsSlide.cpp",
+      "tools/viewer/ShipSlide.cpp",
+      "tools/viewer/SimpleStrokerSlide.cpp",
+      "tools/viewer/SkSLDebuggerSlide.cpp",
+      "tools/viewer/SkSLDebuggerSlide.h",
+      "tools/viewer/SkSLSlide.cpp",
+      "tools/viewer/SkSLSlide.h",
+      "tools/viewer/SkottieSlide.cpp",
+      "tools/viewer/SkottieSlide.h",
+      "tools/viewer/Slide.h",
+      "tools/viewer/SlideDir.cpp",
+      "tools/viewer/SlideDir.h",
+      "tools/viewer/SlidesSlide.cpp",
+      "tools/viewer/StatsLayer.cpp",
+      "tools/viewer/StatsLayer.h",
+      "tools/viewer/StringArtSlide.cpp",
+      "tools/viewer/StrokeVerbSlide.cpp",
+      "tools/viewer/SvgSlide.cpp",
+      "tools/viewer/SvgSlide.h",
+      "tools/viewer/TextBoxSlide.cpp",
+      "tools/viewer/TextureUploadSlide.cpp",
+      "tools/viewer/ThinAASlide.cpp",
+      "tools/viewer/TimingSlide.cpp",
+      "tools/viewer/TouchGesture.cpp",
+      "tools/viewer/TouchGesture.h",
+      "tools/viewer/TypefaceSlide.cpp",
+      "tools/viewer/VariableWidthStrokerSlide.cpp",
+      "tools/viewer/Viewer.cpp",
+      "tools/viewer/Viewer.h",
+      "tools/viewer/XferSlide.cpp",
+    ]
+    libs = []
+    deps = [
+      ":common_flags_config",
+      ":common_flags_gpu",
+      ":common_flags_graphite",
+      ":flags",
+      ":gm",
+      ":gpu_tool_utils",
+      ":sk_app",
+      ":skia",
+      ":tool_utils",
+      ":trace",
+      ":xml",
+      "modules/audioplayer",
+      "modules/skottie",
+      "modules/skottie:utils",
+      "modules/skparagraph:slides",
+      "modules/skresources",
+      "modules/sksg:slides",
+      "modules/skshaper:skshaper",
+      "modules/skunicode",
+      "//third_party/delaunator",
+      "//third_party/imgui",
+    ]
+    if (skia_use_libpng_decode) {
+      deps += [ "modules/svg" ]
+      sources += [
+        "tools/viewer/MSKPSlide.cpp",
+        "tools/viewer/MSKPSlide.h",
       ]
-      libs = []
-
-      deps = [
-        ":common_flags_config",
-        ":common_flags_gpu",
-        ":common_flags_graphite",
-        ":flags",
-        ":gm",
-        ":gpu_tool_utils",
-        ":sk_app",
-        ":skia",
-        ":tool_utils",
-        ":trace",
-        ":xml",
-        "modules/audioplayer",
-        "modules/skottie",
-        "modules/skottie:utils",
-        "modules/skparagraph:slides",
-        "modules/skresources",
-        "modules/sksg:slides",
-        "modules/skshaper:skshaper",
-        "modules/skunicode",
-        "//third_party/delaunator",
-        "//third_party/imgui",
+    }
+    if (skia_use_vulkan) {
+      deps += [
+        "//third_party/externals/spirv-tools:spvtools",
+        #spvtools depends on this but doesn't deps it in.
+        "//third_party/externals/spirv-tools:spvtools_val",
       ]
-      if (skia_use_libpng_decode) {
-        deps += [ "modules/svg" ]
-
-        sources += [
-          "tools/viewer/MSKPSlide.cpp",
-          "tools/viewer/MSKPSlide.h",
-        ]
-      }
-      if (skia_use_vulkan) {
-        deps += [
-          "//third_party/externals/spirv-tools:spvtools",
-
-          #spvtools depends on this but doesn't deps it in.
-          "//third_party/externals/spirv-tools:spvtools_val",
-        ]
-      }
     }
   }
 

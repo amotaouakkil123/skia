@@ -87,7 +87,7 @@ public:
     SkScalar textGamma() const { return fTextGamma; }
 
     bool isUseDeviceIndependentFonts() const {
-        return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
+        return true;
     }
 
     bool isAlwaysDither() const {

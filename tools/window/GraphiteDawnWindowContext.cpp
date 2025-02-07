@@ -43,8 +43,9 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     fWidth = width;
     fHeight = height;
 
-    if (!this->onInitializeContext())
+    if (!this->onInitializeContext()) {
         return;
+    }
 
     SkASSERT(fDevice);
     SkASSERT(fSurface);
@@ -79,9 +80,8 @@ void GraphiteDawnWindowContext::destroyContext() {
     if (!fDevice.Get()) {
         return;
     }
-
     this->onDestroyContext();
-
+    SkASSERT(nullptr);
     fGraphiteRecorder = nullptr;
     fGraphiteContext = nullptr;
     fSurface = nullptr;
@@ -91,19 +91,17 @@ void GraphiteDawnWindowContext::destroyContext() {
 sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     wgpu::SurfaceTexture surfaceTexture;
     fSurface.GetCurrentTexture(&surfaceTexture);
-    SkASSERT(surfaceTexture.texture);
     auto texture = surfaceTexture.texture;
-
     skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
                                           skgpu::Mipmapped::kNo,
                                           fSurfaceFormat,
                                           texture.GetUsage(),
                                           wgpu::TextureAspect::All);
+
     auto backendTex = skgpu::graphite::BackendTextures::MakeDawn(texture.Get());
-    SkASSERT(this->graphiteRecorder());
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                   backendTex,
-                                                  kBGRA_8888_SkColorType,
+                                                  kRGBA_8888_SkColorType,
                                                   fDisplayParams->colorSpace(),
                                                   &fDisplayParams->surfaceProps());
     SkASSERT(surface);

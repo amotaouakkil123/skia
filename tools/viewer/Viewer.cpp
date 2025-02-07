@@ -149,6 +149,8 @@
 #include "include/codec/SkRawDecoder.h"
 #endif
 
+#include "tools/sk_app/ohos/logger_common.h"
+
 using namespace skia_private;
 using skwindow::DisplayParams;
 
@@ -285,8 +287,10 @@ static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.")
 static DEFINE_bool(stats, false, "Display stats overlay on startup.");
 static DEFINE_bool(createProtected, false, "Create a protected native backend (e.g., in EGL).");
 
+#if !defined(__OHOS__)
 #ifndef SK_GL
 static_assert(false, "viewer requires GL backend for raster.")
+#endif
 #endif
 
 static bool is_graphite_backend_type(sk_app::Window::BackendType type) {
@@ -545,7 +549,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomWindowLocation{0.0f, 0.0f}
     , fLastImage(nullptr)
     , fZoomUI(false)
-    , fBackendType(sk_app::Window::kNativeGL_BackendType)
+    , fBackendType(sk_app::Window::kVulkan_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
     // Our UI can only tweak gamma (currently), so start out gamma-only
@@ -583,6 +587,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #ifdef SK_BUILD_FOR_ANDROID
     SetResourcePath("/data/local/tmp/resources");
 #endif
+
+#if defined(__OHOS__)
+    SetResourcePath("/data/storage/el1/bundle/entry/resources/resfile");
+#endif
+
 
     initializeEventTracingForTools();
     static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
@@ -1081,18 +1090,18 @@ void Viewer::initSlides() {
             }
         }
 
-        if (sk_exists(file.c_str(), kRead_SkFILE_Flag)) {
-            for (const auto& sinfo : gExternalSlidesInfo) {
-                if (file.endsWith(sinfo.fExtension)) {
-                    addSlide(SkOSPath::Basename(file.c_str()), file, sinfo.fFactory);
-                    return;
-                }
-            }
+        // if (sk_exists(file.c_str(), kRead_SkFILE_Flag)) {
+        //     for (const auto& sinfo : gExternalSlidesInfo) {
+        //         if (file.endsWith(sinfo.fExtension)) {
+        //             addSlide(SkOSPath::Basename(file.c_str()), file, sinfo.fFactory);
+        //             return;
+        //         }
+        //     }
 
-            fprintf(stderr, "Unsupported file type \"%s\"\n", file.c_str());
-        } else {
-            fprintf(stderr, "Cannot read \"%s\"\n", file.c_str());
-        }
+        //     fprintf(stderr, "Unsupported file type \"%s\"\n", file.c_str());
+        // } else {
+        //     fprintf(stderr, "Cannot read \"%s\"\n", file.c_str());
+        // }
 
         return;
     }
@@ -1153,38 +1162,38 @@ void Viewer::initSlides() {
         }
     }
 
-    for (const auto& info : gExternalSlidesInfo) {
-        for (const auto& flag : info.fFlags) {
-            if (SkStrEndsWith(flag.c_str(), info.fExtension)) {
-                // single file
-                addSlide(SkOSPath::Basename(flag.c_str()), flag, info.fFactory);
-            } else {
-                // directory
-                SkString name;
-                TArray<SkString> sortedFilenames;
-                SkOSFile::Iter it(flag.c_str(), info.fExtension);
-                while (it.next(&name)) {
-                    sortedFilenames.push_back(name);
-                }
-                if (sortedFilenames.size()) {
-                    SkTQSort(sortedFilenames.begin(), sortedFilenames.end(),
-                             [](const SkString& a, const SkString& b) {
-                                 return strcmp(a.c_str(), b.c_str()) < 0;
-                             });
-                }
-                for (const SkString& filename : sortedFilenames) {
-                    addSlide(filename, SkOSPath::Join(flag.c_str(), filename.c_str()),
-                             info.fFactory);
-                }
-            }
-            if (!dirSlides.empty()) {
-                fSlides.push_back(
-                    sk_make_sp<SlideDir>(SkStringPrintf("%s[%s]", info.fDirName, flag.c_str()),
-                                         std::move(dirSlides)));
-                dirSlides.clear();  // NOLINT(bugprone-use-after-move)
-            }
-        }
-    }
+    // for (const auto& info : gExternalSlidesInfo) {
+    //     for (const auto& flag : info.fFlags) {
+    //         if (SkStrEndsWith(flag.c_str(), info.fExtension)) {
+    //             // single file
+    //             addSlide(SkOSPath::Basename(flag.c_str()), flag, info.fFactory);
+    //         } else {
+    //             // directory
+    //             SkString name;
+    //             TArray<SkString> sortedFilenames;
+    //             SkOSFile::Iter it(flag.c_str(), info.fExtension);
+    //             while (it.next(&name)) {
+    //                 sortedFilenames.push_back(name);
+    //             }
+    //             if (sortedFilenames.size()) {
+    //                 SkTQSort(sortedFilenames.begin(), sortedFilenames.end(),
+    //                          [](const SkString& a, const SkString& b) {
+    //                              return strcmp(a.c_str(), b.c_str()) < 0;
+    //                          });
+    //             }
+    //             for (const SkString& filename : sortedFilenames) {
+    //                 addSlide(filename, SkOSPath::Join(flag.c_str(), filename.c_str()),
+    //                          info.fFactory);
+    //             }
+    //         }
+    //         if (!dirSlides.empty()) {
+    //             fSlides.push_back(
+    //                 sk_make_sp<SlideDir>(SkStringPrintf("%s[%s]", info.fDirName, flag.c_str()),
+    //                                      std::move(dirSlides)));
+    //             dirSlides.clear();  // NOLINT(bugprone-use-after-move)
+    //         }
+    //     }
+    // }
 
     if (fSlides.empty()) {
         auto slide = sk_make_sp<NullSlide>();
@@ -1329,6 +1338,7 @@ void Viewer::updateTitle() {
     }
 
     auto params = fWindow->getRequestedDisplayParams();
+
     if (fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
         switch (params->surfaceProps().pixelGeometry()) {
             case kUnknown_SkPixelGeometry:
@@ -1363,7 +1373,7 @@ void Viewer::updateTitle() {
 
     if (is_graphite_backend_type(fBackendType)) {
 #if defined(SK_GRAPHITE)
-        auto graphiteOptions = fWindow->getRequestedDisplayParams()->graphiteTestOptions();
+        auto graphiteOptions = params->graphiteTestOptions();
         SkASSERT(graphiteOptions);
         skgpu::graphite::PathRendererStrategy strategy =
                 graphiteOptions->fPriv.fPathRendererStrategy;
@@ -1374,7 +1384,7 @@ void Viewer::updateTitle() {
 #endif
     } else {
         GpuPathRenderers pr =
-                fWindow->getRequestedDisplayParams()->grContextOptions().fGpuPathRenderers;
+                params->grContextOptions().fGpuPathRenderers;
         if (GpuPathRenderers::kDefault != pr) {
             title.appendf(" [Path renderer: %s]", gGaneshPathRendererNames[pr].c_str());
         }
@@ -1431,6 +1441,7 @@ void Viewer::setCurrentSlide(int slide) {
     fSlides[slide]->load(SkIntToScalar(fWindow->width()) / scaleFactor,
                          SkIntToScalar(fWindow->height()) / scaleFactor);
     fCurrentSlide = slide;
+    LOGI("Current Slide: %{public}s", fSlides[slide]->getName().c_str());
     this->setupCurrentSlide();
 }
 

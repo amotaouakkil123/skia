@@ -6,6 +6,7 @@
 */
 
 #include "tools/sk_app/Window.h"
+#include "tools/sk_app/ohos/logger_common.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
@@ -86,6 +87,7 @@ void Window::onPaint() {
     if (!fIsActive) {
         return;
     }
+    SkASSERT(this);
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer == nullptr) {
         printf("no backbuffer!?\n");

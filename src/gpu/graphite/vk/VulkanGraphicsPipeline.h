@@ -82,7 +82,8 @@ public:
             VkShaderModule* outVertexShaderModule,
             VkShaderModule* outFragShaderModule,
             VkPipelineShaderStageCreateInfo* outShaderStageInfo,
-            VkPipelineLayout* outPipelineLayout);
+            VkPipelineLayout* outPipelineLayout,
+            skia_private::STArray<3, VkDescriptorSetLayout>& outSetLayouts);
 
     ~VulkanGraphicsPipeline() override {}
 
@@ -102,7 +103,8 @@ private:
                            VkPipelineLayout,
                            VkPipeline,
                            bool ownsPipelineLayout,
-                           skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers);
+                           skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers,
+                           skia_private::STArray<3, VkDescriptorSetLayout>& setLayouts);
 
     void freeGpuData() override;
 
@@ -110,6 +112,7 @@ private:
     VkPipeline fPipeline = VK_NULL_HANDLE;
     bool fOwnsPipelineLayout = true;
 
+    skia_private::STArray<3, VkDescriptorSetLayout> fSetLayouts;
     // Hold a ref to immutable samplers used such that their lifetime is properly managed.
     const skia_private::TArray<sk_sp<VulkanSampler>> fImmutableSamplers;
 };

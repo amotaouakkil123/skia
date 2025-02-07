@@ -9,6 +9,8 @@
 #include "tools/gpu/vk/VkTestMemoryAllocator.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
+#include "tools/sk_app/ohos/logger_common.h"
+
 #ifdef SK_VULKAN
 
 #ifndef SK_GPU_TOOLS_VK_LIBRARY_NAME
@@ -200,6 +202,7 @@ static bool should_include_extension(const char* extensionName) {
             "VK_ANDROID_external_memory_android_hardware_buffer",
             // VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
             "VK_KHR_android_surface", // VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
+            "VK_OHOS_surface"
     };
 
     for (size_t i = 0; i < std::size(kValidExtensions); ++i) {

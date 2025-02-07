@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "tools/sk_app/ohos/logger_common.h"
 
 namespace skgpu::graphite {
 
