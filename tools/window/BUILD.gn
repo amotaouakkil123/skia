@@ -60,6 +60,8 @@ skia_component("window") {
   } else if (is_ios) {
     sources += [ "ios/WindowContextFactory_ios.h" ]
     frameworks += [ "QuartzCore.framework" ]
+  } else if (is_ohos) {
+    sources += ["ohos/WindowContextFactory_ohos.h"]
   }
 
   if (skia_use_gl) {
@@ -140,6 +142,11 @@ skia_component("window") {
       if (skia_enable_graphite) {
         sources += [ "win/GraphiteVulkanWindowContext_win.cpp" ]
       }
+    } else if (is_ohos) {
+      sources += [ "ohos/VulkanWindowContext_ohos.cpp" ]
+      if (skia_enable_graphite) {
+        sources += [ "ohos/GraphiteVulkanWindowContext_ohos.cpp" ]
+      }
     }
   }
 
@@ -209,6 +216,17 @@ skia_component("window") {
             "GraphiteDawnWindowContext.h",
             "mac/GraphiteDawnMetalWindowContext_mac.h",
             "mac/GraphiteDawnMetalWindowContext_mac.mm",
+          ]
+        }
+      }
+    } else if (is_ohos) {
+      if (dawn_enable_vulkan) {
+        if (skia_enable_graphite) {
+          sources += [
+            "GraphiteDawnWindowContext.cpp",
+            "GraphiteDawnWindowContext.h",
+            "ohos/GraphiteDawnVulkanWindowContext_ohos.cpp",
+            "GraphiteDisplayParams.h"
           ]
         }
       }

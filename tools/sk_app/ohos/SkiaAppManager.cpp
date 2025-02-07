@@ -1,0 +1,91 @@
+#include "tools/sk_app/ohos/SkiaAppManager.h"
+#include "tools/sk_app/ohos/logger_common.h"
+#include <arkui/native_interface.h>
+#include <arkui/native_node_napi.h>
+
+// NAP Entry to drive the application!
+EXTERN_C_START
+static napi_value Init(napi_env env, napi_value exports) {
+    if ((env == nullptr) || (exports == nullptr)) {
+        return nullptr;
+    }
+
+    sk_app::SkiaAppManager::GetInstance()->Init(env, exports);
+    return exports;
+}
+EXTERN_C_END
+
+static napi_module viewerModule = {
+    .nm_version = 1,
+    .nm_flags = 0,
+    .nm_filename = nullptr,
+    .nm_register_func = Init,
+    .nm_modname = "viewer",
+    .nm_priv = ((void*)0),
+    .reserved = { 0 }
+};
+
+extern "C" __attribute__((constructor)) void RegisterModule(void) {
+    napi_module_register(&viewerModule);
+}
+
+// Skia application manager
+namespace sk_app {
+
+// Skia application manager methods
+bool SkiaAppManager::Init(napi_env env, napi_value exports) {
+    napi_value exportInstance = nullptr;
+    OH_NativeXComponent* nativeXComponent = nullptr;
+    // Fetch the XComponent handler
+    napi_get_named_property(env, exports, OH_NATIVE_XCOMPONENT_OBJ, &exportInstance);
+    // Get nativeXComponent
+    napi_unwrap(env, exportInstance, reinterpret_cast<void**>(&nativeXComponent));
+
+    char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
+    uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
+    // Get nativeXComponent Id
+    OH_NativeXComponent_GetXComponentId(nativeXComponent, idStr, &idSize);
+    std::string id(idStr);
+    SetNativeXComponent(id, nativeXComponent);
+
+    ArkUI_NativeNodeAPI_1* nodeHandle = nullptr;
+    auto* nodeAPI =
+        OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1");
+
+    if (nodeAPI) {
+        nodeHandle = reinterpret_cast<ArkUI_NativeNodeAPI_1*>(nodeAPI);
+    } else {
+        LOGD("SkiaAppManager::Init The native node API is not being queried properly");
+    }
+
+
+    ArkUI_NodeHandle handle;
+    handle = nodeHandle->createNode(ARKUI_NODE_TEXT);
+
+    ArkUI_NumberValue value1[] = {{.f32 = 15},};
+    ArkUI_AttributeItem item1 = {value1, 1};
+    nodeHandle->setAttribute(handle, NODE_TEXT_FONT, &item1);
+
+    ArkUI_AttributeItem textItem;
+    textItem.string = "title";
+    nodeHandle->setAttribute(handle, NODE_TEXT_CONTENT, &textItem);
+
+    OhosSkiaApp* skiaInstance = GetRender(id, handle, nodeHandle);
+    skiaInstance->SetNativeXComponent(nativeXComponent);
+
+    return true;
+}
+
+OhosSkiaApp* SkiaAppManager::GetRender(std::string& id, ArkUI_NodeHandle handle, ArkUI_NativeNodeAPI_1* nodeApi) {
+    if (ohosSkiaMap.find(id) == ohosSkiaMap.end()) {
+        OhosSkiaApp* instance = OhosSkiaApp::GetInstance(id, handle, nodeApi);
+        ohosSkiaMap[id] = instance;
+    }
+    return ohosSkiaMap[id];
+}
+
+void SkiaAppManager::SetNativeXComponent(std::string& id, OH_NativeXComponent* nativeXComponent) {
+    nativeXComponentMap[id] = nativeXComponent;
+}
+
+}
