@@ -9,7 +9,6 @@
 
 #include "include/core/SkTypes.h"
 
-#ifdef SK_VULKAN
 
 #include "tools/gpu/vk/VkTestUtils.h"
 #include "tools/window/WindowContext.h"
@@ -116,6 +115,5 @@ private:
 
 }  // namespace skwindow::internal
 
-#endif  // SK_VULKAN
 
 #endif  // GraphiteVulkanWindowContext_DEFINED

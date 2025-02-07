@@ -17,6 +17,10 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLUtil.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+#include <fstream>
+#include <iostream>
+
 using namespace skia_private;
 
 namespace skgpu::graphite {

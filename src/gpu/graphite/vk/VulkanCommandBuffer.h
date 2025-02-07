@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
+#include "include/gpu/GpuTypes.h"
 
 namespace skgpu::graphite {
 
@@ -114,6 +115,15 @@ private:
         VkShaderStageFlagBits fShaderStageFlagBits;
         const void* fValues;
     };
+
+    // Timestamp struct from vulkan-hpp
+    struct TimeStamps
+	{
+		uint64_t    value = 0;         // GPU time stamps will be stored in an array
+		VkQueryPool queryPool;        // A query pool is required to use GPU time stamps
+
+	};
+
     void bindGraphicsPipeline(const GraphicsPipeline*);
     void pushConstants(const PushConstantInfo&, VkPipelineLayout compatibleLayout);
 
@@ -190,6 +200,10 @@ private:
 
     VkCommandPool fPool;
     VkCommandBuffer fPrimaryCommandBuffer;
+    TimeStamps fStatistics;
+
+    float fTimestampPeriod;
+
     const VulkanSharedContext* fSharedContext;
     VulkanResourceProvider* fResourceProvider;
 

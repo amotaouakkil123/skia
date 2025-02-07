@@ -126,9 +126,21 @@ public:
 
     static sk_sp<VulkanGraphicsPipeline> MakeLoadMSAAPipeline(
             const VulkanSharedContext*,
-            VulkanResourceProvider*,
-            const VulkanProgramInfo& loadMSAAProgram,
-            const RenderPassDesc&);
+            VkShaderModule vsModule,
+            VkShaderModule fsModule,
+            VkPipelineShaderStageCreateInfo* pipelineShaderStages,
+            VkPipelineLayout,
+            sk_sp<VulkanRenderPass> compatibleRenderPass,
+            VkPipelineCache,
+            const TextureInfo& dstColorAttachmentTexInfo);
+
+    static bool InitializeMSAALoadPipelineStructs(
+            const VulkanSharedContext*,
+            VkShaderModule* outVertexShaderModule,
+            VkShaderModule* outFragShaderModule,
+            VkPipelineShaderStageCreateInfo* outShaderStageInfo,
+            VkPipelineLayout* outPipelineLayout,
+            skia_private::STArray<3, VkDescriptorSetLayout>& outSetLayouts);
 
     ~VulkanGraphicsPipeline() override {}
 
@@ -165,12 +177,8 @@ private:
                            VkPipeline,
                            VkPipeline,
                            bool ownsPipelineLayout,
-                           skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers,
-                           RenderStep::RenderStepID renderStepID,
-                           PrimitiveType primitiveType,
-                           const DepthStencilSettings& depthStencilSettings,
-                           VertexInputBindingDescriptions&& vertexBindingDescriptions,
-                           VertexInputAttributeDescriptions&& vertexAttributeDescriptions);
+                           skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers,
+                           skia_private::STArray<3, VkDescriptorSetLayout>& setLayouts);
 
     void freeGpuData() override;
 
@@ -196,6 +204,7 @@ private:
     VkPipeline fShadersPipeline = VK_NULL_HANDLE;
     bool fOwnsPipelineLayout = true;
 
+    skia_private::STArray<3, VkDescriptorSetLayout> fSetLayouts;
     // Hold a ref to immutable samplers used such that their lifetime is properly managed.
     const skia_private::TArray<sk_sp<VulkanSampler>> fImmutableSamplers;
 

@@ -64,6 +64,15 @@ platform(
 )
 
 platform(
+    name = "aarch64-linux-ohos",
+    constraint_values = [
+        "@platforms//os:ohos",
+        "@platforms//cpu:arm64",
+        "cgo_off"
+    ]
+)
+
+platform(
     name = "host_with_hermetic_toolchain",
     constraint_values = [
         ":cgo_off",  # Necessary to build locally (i.e. non-RBE builds).

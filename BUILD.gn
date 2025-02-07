@@ -469,6 +469,19 @@ optional("fontmgr_win") {
   }
 }
 
+optional("fontmgr_ohos") {
+  enabled = skia_enable_fontmgr_ohos
+
+  # public_defines = [
+  #   "SK_BUILD_FONT_MGR_FOR_OHOS"
+  # ]
+
+  deps = [ "//third_party/jsoncpp" ]
+
+  public = skia_ports_fontmgr_ohos_public
+  sources = skia_ports_fontmgr_ohos_sources
+}
+
 optional("fontmgr_win_gdi") {
   enabled = skia_enable_fontmgr_win_gdi
   public_defines = [ "SK_FONTMGR_GDI_AVAILABLE" ]
@@ -1780,7 +1793,7 @@ skia_component("skia") {
     ]
   }
 
-  if (is_linux || is_wasm) {
+  if (is_linux || is_wasm || is_ohos) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
     if (skia_use_egl) {
       libs += [ "GLESv2" ]
@@ -2156,8 +2169,12 @@ if (skia_enable_tools) {
       "tools/text/gpu/TextBlobTools.cpp",
     ]
 
-    libs = []
+    libs = ["hilog_ndk.z"]
     frameworks = []
+
+    if (is_ohos) {
+      sources += ["tools/sk_app/ohos/ohos_log.h"]
+    }
 
     if (skia_use_gl) {
       sources += [ "tools/gpu/gl/GLTestContext.cpp" ]
@@ -2174,7 +2191,7 @@ if (skia_enable_tools) {
     }
 
     if (skia_use_gl && target_cpu != "wasm") {
-      if (is_android || skia_use_egl) {
+      if (is_android || is_ohos || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
         libs += [ "EGL" ]
       } else if (is_linux) {
@@ -3046,12 +3063,44 @@ if (skia_enable_tools) {
         "tools/sk_app/ios/main_ios.mm",
       ]
       frameworks += [ "QuartzCore.framework" ]
+    } else if (is_ohos) {
+      sources += [
+        "tools/sk_app/ohos/ohos_log.h",
+        "tools/sk_app/ohos/napi_init.cpp",
+        "tools/sk_app/ohos/napi-inl.h",
+        "tools/sk_app/ohos/napi.h",
+        "tools/sk_app/ohos/NapiManager.h",
+        "tools/sk_app/ohos/NapiManager.cpp",
+        "tools/sk_app/ohos/NodeContent.h",
+        "tools/sk_app/ohos/NodeContent.cpp",
+        "tools/sk_app/ohos/OhosSkiaNode.h",
+        "tools/sk_app/ohos/OhosSkiaNode.cpp",
+        "tools/sk_app/ohos/Window_ohos.h",
+        "tools/sk_app/ohos/Window_ohos.cpp",
+        "tools/sk_app/ohos/XComponentNode.h",
+        "tools/sk_app/ohos/XComponentNode.cpp",
+      ]
+
+      libs += [
+        "ace_napi.z",
+        "ace_ndk.z",
+        "hilog_ndk.z",
+        "uv",
+        "z",
+        "EGL",
+        "GLESv3",
+        "native_window"
+      ]
     }
 
     deps = [
       ":tool_utils",
       "tools/window",
     ]
+
+    if (is_ohos) {
+      deps += ["//third_party/imgui"]
+    }
     if (is_android) {
       deps += [ "//third_party/native_app_glue" ]
     }
@@ -3088,7 +3137,6 @@ if (skia_enable_tools) {
         "tools/viewer/CowboySlide.cpp",
         "tools/viewer/DegenerateQuadsSlide.cpp",
         "tools/viewer/DegenerateTwoPtRadialsSlide.cpp",
-        "tools/viewer/EdgeBuilderVizSlide.cpp",
         "tools/viewer/FatBitsSlide.cpp",
         "tools/viewer/FilterBoundsSlide.cpp",
         "tools/viewer/FitCubicToCircleSlide.cpp",
@@ -3121,7 +3169,6 @@ if (skia_enable_tools) {
         "tools/viewer/PathTextSlide.cpp",
         "tools/viewer/ProtectedSlide.cpp",
         "tools/viewer/QuadStrokerSlide.cpp",
-        "tools/viewer/RasterPipelineVizSlide.cpp",
         "tools/viewer/RectanizerSlide.cpp",
         "tools/viewer/RepeatTileSlide.cpp",
         "tools/viewer/SBIXSlide.cpp",

@@ -23,6 +23,8 @@
 #include "tools/graphite/TestOptions.h"
 #include "tools/window/GraphiteDisplayParams.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 #include "dawn/dawn_proc.h"
 
 namespace skwindow::internal {
@@ -44,8 +46,9 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     fWidth = width;
     fHeight = height;
 
-    if (!this->onInitializeContext())
+    if (!this->onInitializeContext()) {
         return;
+    }
 
     SkASSERT(fDevice);
     SkASSERT(fSurface);
@@ -74,15 +77,17 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     SkASSERT(fGraphiteRecorder);
 }
 
-GraphiteDawnWindowContext::~GraphiteDawnWindowContext() = default;
+GraphiteDawnWindowContext::~GraphiteDawnWindowContext() {
+    LOGI("GraphiteDawnWindowContext::~GraphiteDawnWindowContext Destroying Dawn window context");
+    this->destroyContext();
+};
 
 void GraphiteDawnWindowContext::destroyContext() {
+    LOGI("GraphiteDawnWindowContext::destroyContext We are destroying the Graphite Dawn surface");
     if (!fDevice.Get()) {
         return;
     }
-
     this->onDestroyContext();
-
     fGraphiteRecorder = nullptr;
     fGraphiteContext = nullptr;
     fSurface = nullptr;
@@ -92,19 +97,17 @@ void GraphiteDawnWindowContext::destroyContext() {
 sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     wgpu::SurfaceTexture surfaceTexture;
     fSurface.GetCurrentTexture(&surfaceTexture);
-    SkASSERT(surfaceTexture.texture);
     auto texture = surfaceTexture.texture;
-
     skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
                                           skgpu::Mipmapped::kNo,
                                           fSurfaceFormat,
                                           texture.GetUsage(),
                                           wgpu::TextureAspect::All);
+
     auto backendTex = skgpu::graphite::BackendTextures::MakeDawn(texture.Get());
-    SkASSERT(this->graphiteRecorder());
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                   backendTex,
-                                                  kBGRA_8888_SkColorType,
+                                                  kRGBA_8888_SkColorType,
                                                   fDisplayParams->colorSpace(),
                                                   &fDisplayParams->surfaceProps());
     SkASSERT(surface);

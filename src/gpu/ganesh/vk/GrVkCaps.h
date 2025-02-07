@@ -280,6 +280,8 @@ public:
 
     bool supportsMemorylessAttachments() const { return fSupportsMemorylessAttachments; }
 
+    float getTimestampPeriod() const { return fTimestampPeriod; }
+
 #if defined(GPU_TEST_UTILS)
     std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
@@ -491,6 +493,8 @@ private:
     bool fSupportsMemorylessAttachments = false;
 
     uint32_t fMaxDrawIndirectDrawCount = 0;
+
+    float fTimestampPeriod;
 
     using INHERITED = GrCaps;
 };

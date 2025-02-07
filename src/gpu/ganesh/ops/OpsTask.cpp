@@ -626,7 +626,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     GrStoreOp stencilStoreOp = (caps.discardStencilValuesAfterRenderPass() && !fMustPreserveStencil)
             ? GrStoreOp::kDiscard
             : GrStoreOp::kStore;
-
+    // TODO: Log the time here...
     GrOpsRenderPass* renderPass = create_render_pass(flushState->gpu(),
                                                      proxy->peekRenderTarget(),
                                                      fUsesMSAASurface,
@@ -644,6 +644,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
         return false;
     }
     flushState->setOpsRenderPass(renderPass);
+    // You have to begin the render pass before you start the draw operation...
     renderPass->begin();
 
     GrSurfaceProxyView dstView(sk_ref_sp(this->target(0)), fTargetOrigin, fTargetSwizzle);

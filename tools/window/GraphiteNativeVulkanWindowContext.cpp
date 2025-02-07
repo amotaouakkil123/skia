@@ -31,6 +31,8 @@
 #include "tools/ToolUtils.h"
 #include "tools/graphite/GraphiteToolUtils.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
 #undef CreateSemaphore
@@ -444,9 +446,13 @@ void GraphiteVulkanWindowContext::destroyBuffers() {
     fImages = nullptr;
 }
 
-GraphiteVulkanWindowContext::~GraphiteVulkanWindowContext() { this->destroyContext(); }
+GraphiteVulkanWindowContext::~GraphiteVulkanWindowContext() { 
+    LOGI("GraphiteVulkanWindowContext::~GraphiteVulkanWindowContext Destroying Graphite window context");
+    this->destroyContext(); 
+}
 
 void GraphiteVulkanWindowContext::destroyContext() {
+    LOGI("GraphiteVulkanWindowContext::destroyContext We are destroying the Graphite Vulkan Window context");
     if (this->isValid()) {
         if (fPresentQueue != VK_NULL_HANDLE) {
             fQueueWaitIdle(fPresentQueue);
@@ -466,6 +472,7 @@ void GraphiteVulkanWindowContext::destroyContext() {
         }
 
         if (fSurface != VK_NULL_HANDLE) {
+            LOGI("GraphiteVulkanWindowContext::destroyContext we are destroying the surface!");
             fDestroySurfaceKHR(fInstance, fSurface, nullptr);
             fSurface = VK_NULL_HANDLE;
         }

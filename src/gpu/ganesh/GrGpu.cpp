@@ -680,6 +680,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
     }
 }
 
+// This mehtod updates and "executes" the flush info, aka "what is new?".
 void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
                              SkSurfaces::BackendSurfaceAccess access,
                              const GrFlushInfo& info,

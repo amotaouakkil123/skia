@@ -166,6 +166,7 @@ Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider
     return Status::kSuccess;
 }
 
+// Todo: Measure
 Task::Status RenderPassTask::addCommands(Context* context,
                                          CommandBuffer* commandBuffer,
                                          ReplayTargetData replayData) {
@@ -251,6 +252,7 @@ Task::Status RenderPassTask::addCommands(Context* context,
     // TODO(b/313629288) we always pass in the render target's dimensions as the viewport here.
     // Using the dimensions of the logical device that we're drawing to could reduce flakiness in
     // rendering.
+    // Todo: Monitor this area too...
     if (commandBuffer->addRenderPass(fRenderPassDesc,
                                      std::move(colorAttachment),
                                      std::move(resolveAttachment),

@@ -13,6 +13,8 @@
 #include "include/gpu/graphite/Recorder.h"
 #endif
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 namespace skwindow {
 
 WindowContext::WindowContext(std::unique_ptr<const DisplayParams> params)
@@ -42,7 +44,7 @@ void WindowContext::submitToGpu(GpuTimerCallback statsCallback) {
 #if defined(SK_GRAPHITE)
     if (fGraphiteContext) {
         SkASSERT(fGraphiteRecorder);
-        std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
+        std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap(); // Create pipeline
         if (recording) {
             skgpu::graphite::InsertRecordingInfo info;
             if (statsCallback) {
@@ -51,15 +53,15 @@ void WindowContext::submitToGpu(GpuTimerCallback statsCallback) {
                 info.fFinishedWithStatsProc = [](skgpu::graphite::GpuFinishedContext context,
                                                  skgpu::CallbackResult,
                                                  const skgpu::GpuStats& stats) {
-                    std::unique_ptr<GpuTimerCallback> callback{
-                        static_cast<GpuTimerCallback*>(context)};
-                    (*callback)(stats.elapsedTime);
-                };
-                info.fGpuStatsFlags = skgpu::GpuStatsFlags::kElapsedTime;
+                        std::unique_ptr<GpuTimerCallback> callback{
+                            static_cast<GpuTimerCallback*>(context)};
+                        (*callback)(stats.elapsedTime);
+                    };
+                    info.fGpuStatsFlags = skgpu::GpuStatsFlags::kElapsedTime;
             }
             info.fRecording = recording.get();
-            fGraphiteContext->insertRecording(info);
-            fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
+            fGraphiteContext->insertRecording(info); // Create command buffer and render passes
+            fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo); // Execute the GPU commands.
         }
         return;
     }

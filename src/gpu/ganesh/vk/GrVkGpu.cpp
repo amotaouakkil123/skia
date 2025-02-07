@@ -224,6 +224,8 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct,
         SkASSERT(this->currentCommandBuffer());
         this->currentCommandBuffer()->begin(this);
     }
+
+    fTimestampPeriod = fVkCaps->getTimestampPeriod();
 }
 
 void GrVkGpu::destroyResources() {
@@ -356,6 +358,7 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
         return nullptr;
     }
 
+    // Todo: Measure how fast the command buffer and render pass get created
     if (!fCachedOpsRenderPass->set(rt, std::move(framebuffer), origin, bounds, localColorInfo,
                                    stencilInfo, resolveInfo, selfDepFlags, loadFromResolve,
                                    sampledProxies)) {
@@ -364,6 +367,7 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
     return fCachedOpsRenderPass.get();
 }
 
+// Todo: The area of the code that requires close monitoring for execution of the all the commands.
 bool GrVkGpu::submitCommandBuffer(const GrSubmitInfo& submitInfo) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->currentCommandBuffer()) {

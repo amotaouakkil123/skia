@@ -31,6 +31,8 @@
 #include "src/gpu/graphite/vk/VulkanTexture.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 using namespace skia_private;
 
 namespace skgpu::graphite {
@@ -99,6 +101,26 @@ VulkanCommandBuffer::VulkanCommandBuffer(VkCommandPool pool,
         , fSharedContext(sharedContext)
         , fResourceProvider(resourceProvider) {
     // When making a new command buffer, we automatically begin the command buffer
+    // Create a query information...
+    VkQueryPoolCreateInfo queryPoolCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .queryType = VK_QUERY_TYPE_TIMESTAMP,
+        .queryCount = 2,
+        .pipelineStatistics = VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
+        VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT,
+    };
+
+    // For timestamps
+    fTimestampPeriod = 520.830017;
+
+    VkQueryPool queryPool;
+    VULKAN_CALL(fSharedContext->interface(),
+                CreateQueryPool(fSharedContext->device(), &queryPoolCreateInfo, nullptr, &queryPool));
+
+    fStatistics.queryPool = queryPool;
+
     this->begin();
 }
 
@@ -144,6 +166,18 @@ void VulkanCommandBuffer::begin() {
     VkCommandBufferBeginInfo cmdBufferBeginInfo = {};
     cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdResetQueryPool(fPrimaryCommandBuffer, 
+                                  fStatistics.queryPool, 
+                                  0, 
+                                  2));
+    
+    // VULKAN_CALL(fSharedContext->interface(),
+    //             CmdWriteTimestamp(fPrimaryCommandBuffer,
+    //                               VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+    //                               fStatistics.queryPool, 
+    //                               0));
 
     VULKAN_CALL_ERRCHECK(fSharedContext,
                          BeginCommandBuffer(fPrimaryCommandBuffer, &cmdBufferBeginInfo));
@@ -199,6 +233,22 @@ void VulkanCommandBuffer::end() {
     SkASSERT(!fActiveRenderPass);
 
     this->submitPipelineBarriers();
+
+    uint64_t timestamp;
+    VULKAN_CALL(fSharedContext->interface(),
+                GetQueryPoolResults(fSharedContext->device(),
+                                    fStatistics.queryPool,
+                                    static_cast<uint32_t>(0),
+                                    static_cast<uint32_t>(1),
+                                    2 * sizeof(uint64_t),
+                                    &timestamp,
+                                    2 * sizeof(uint64_t),
+                                    VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT));
+
+    LOGD("Period: %f", fTimestampPeriod);
+    LOGD("Timestamp: %f", (timestamp - fStatistics.value) * fTimestampPeriod / 1000000.0f);
+    fStatistics.value = 0; 
+    fStatistics.value += timestamp;
 
     VULKAN_CALL_ERRCHECK(fSharedContext, EndCommandBuffer(fPrimaryCommandBuffer));
 
@@ -888,6 +938,14 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
     // Submit pipeline barriers to ensure any image layout transitions are recorded prior to
     // beginning the render pass.
     this->submitPipelineBarriers();
+
+    // Todo: Add Query Here
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdWriteTimestamp(fPrimaryCommandBuffer,
+                                   VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                   fStatistics.queryPool, 
+                                   0));
+
     // TODO: If we add support for secondary command buffers, dynamically determine subpass contents
     VULKAN_CALL(fSharedContext->interface(),
                 CmdBeginRenderPass(fPrimaryCommandBuffer,
@@ -917,16 +975,25 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
 void VulkanCommandBuffer::endRenderPass() {
     SkASSERT(fActive);
     VULKAN_CALL(fSharedContext->interface(), CmdEndRenderPass(fPrimaryCommandBuffer));
+    VULKAN_CALL(fSharedContext->interface(),
+                CmdWriteTimestamp(fPrimaryCommandBuffer,
+                                   VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                   fStatistics.queryPool,
+                                   1));
     fActiveRenderPass = false;
     fTargetTexture = nullptr;
 }
 
+// Todo: Measure
 void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
     drawPass->addResourceRefs(this);
     for (auto [type, cmdPtr] : drawPass->commands()) {
         switch (type) {
             case DrawPassCommands::Type::kBindGraphicsPipeline: {
                 auto bgp = static_cast<DrawPassCommands::BindGraphicsPipeline*>(cmdPtr);
+                VulkanGraphicsPipeline::PipelineInfo pipelineInfo = drawPass->getPipeline(bgp->fPipelineIndex)->getPipelineInfo();
+                LOGD("SkSL Vertex Shader: %s", pipelineInfo.fSkSLVertexShader.c_str());
+                LOGD("SkSL Fragment Shader: %s", pipelineInfo.fSkSLFragmentShader.c_str());
                 this->bindGraphicsPipeline(drawPass->getPipeline(bgp->fPipelineIndex));
                 break;
             }
@@ -1396,6 +1463,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     this->trackResource(std::move(set));
 }
 
+// Todo: Measure
 void VulkanCommandBuffer::bindTextureSamplers() {
     fBindTextureSamplers = false;
     if (fTextureSamplerDescSetToBind != VK_NULL_HANDLE &&
@@ -1416,6 +1484,7 @@ void VulkanCommandBuffer::setScissor(const Scissor& scissor) {
     this->setScissor(scissor.getRect(fReplayTranslation, fRenderPassBounds));
 }
 
+// Todo: Measure
 void VulkanCommandBuffer::setScissor(const SkIRect& rect) {
     VkRect2D scissor = {
             {rect.x(), rect.y()},
@@ -1427,6 +1496,7 @@ void VulkanCommandBuffer::setScissor(const SkIRect& rect) {
                               &scissor));
 }
 
+// Todo: Measure
 void VulkanCommandBuffer::draw(PrimitiveType,
                                unsigned int baseVertex,
                                unsigned int vertexCount) {
@@ -1441,6 +1511,7 @@ void VulkanCommandBuffer::draw(PrimitiveType,
                         /*firstInstance=*/0));
 }
 
+// Todo: Measure
 void VulkanCommandBuffer::drawIndexed(PrimitiveType,
                                       unsigned int baseIndex,
                                       unsigned int indexCount,
@@ -1457,6 +1528,7 @@ void VulkanCommandBuffer::drawIndexed(PrimitiveType,
                                /*firstInstance=*/0));
 }
 
+// Todo: Measure
 void VulkanCommandBuffer::drawInstanced(PrimitiveType,
                                         unsigned int baseVertex,
                                         unsigned int vertexCount,
@@ -1473,6 +1545,7 @@ void VulkanCommandBuffer::drawInstanced(PrimitiveType,
                         baseInstance));
 }
 
+// Todo: Measure
 void VulkanCommandBuffer::drawIndexedInstanced(PrimitiveType,
                                                unsigned int baseIndex,
                                                unsigned int indexCount,

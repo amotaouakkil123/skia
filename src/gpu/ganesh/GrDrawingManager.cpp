@@ -204,7 +204,7 @@ bool GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> proxies,
             }
             resourceAllocator.assign();
         }
-
+        // Todo: Prepare the render tasks
         cachePurgeNeeded = !resourceAllocator.failedInstantiation() &&
                            this->executeRenderTasks(&flushState);
     }
@@ -281,6 +281,8 @@ bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
     static constexpr int kMaxRenderPassesBeforeFlush = 100;
 
     // Execute the normal op lists.
+
+
     for (const auto& renderTask : fDAG) {
         SkASSERT(renderTask);
         if (!renderTask->isInstantiated()) {

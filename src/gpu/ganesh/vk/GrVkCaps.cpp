@@ -318,8 +318,23 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
 
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
+    
+    std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+    uint32_t                             queueFamilyPropertyCount;
+    GR_VK_CALL(vkInterface,
+        GetPhysicalDeviceQueueFamilyProperties(physDev, &queueFamilyPropertyCount, nullptr)
+                );
+    queueFamilyProperties.resize(queueFamilyPropertyCount);
+    
+    GR_VK_CALL(vkInterface,
+        GetPhysicalDeviceQueueFamilyProperties(physDev,
+                                               &queueFamilyPropertyCount,
+                                               reinterpret_cast<VkQueueFamilyProperties*>(queueFamilyProperties.data()))
+                );
 
     SkASSERT(physicalDeviceVersion <= properties.apiVersion);
+    
+    fTimestampPeriod = properties.limits.timestampPeriod;
 
     if (extensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME, 1)) {
         fSupportsSwapchain = true;

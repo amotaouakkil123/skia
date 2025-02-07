@@ -24,6 +24,7 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureFormat.h"
+#include "tools/sk_app/ohos/ohos_log.h"
 
 namespace skgpu::graphite {
 

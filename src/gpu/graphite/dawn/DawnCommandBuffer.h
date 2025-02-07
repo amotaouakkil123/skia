@@ -45,7 +45,6 @@ public:
 
     bool startTimerQuery() override;
     void endTimerQuery() override;
-    std::optional<GpuStats> gpuStats() override;
 
 private:
     DawnCommandBuffer(const DawnSharedContext* sharedContext,

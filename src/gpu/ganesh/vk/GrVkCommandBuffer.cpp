@@ -23,6 +23,8 @@
 #include "src/gpu/ganesh/vk/GrVkRenderPass.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 #include <algorithm>
 #include <cstring>
 
@@ -435,7 +437,23 @@ GrVkPrimaryCommandBuffer* GrVkPrimaryCommandBuffer::Create(GrVkGpu* gpu,
     if (err) {
         return nullptr;
     }
-    return new GrVkPrimaryCommandBuffer(cmdBuffer);
+
+    VkQueryPoolCreateInfo queryPoolCreateInfo = {
+        .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .queryType = VK_QUERY_TYPE_TIMESTAMP,
+        .queryCount = 2,
+        .pipelineStatistics = VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
+                              VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT,
+    };
+
+    VkQueryPool queryPool;
+
+    GR_VK_CALL(gpu->vkInterface(),
+               CreateQueryPool(gpu->device(), &queryPoolCreateInfo, nullptr, &queryPool));
+
+    return new GrVkPrimaryCommandBuffer(cmdBuffer, queryPool);
 }
 
 void GrVkPrimaryCommandBuffer::begin(GrVkGpu* gpu) {
@@ -447,7 +465,22 @@ void GrVkPrimaryCommandBuffer::begin(GrVkGpu* gpu) {
     cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     cmdBufferBeginInfo.pInheritanceInfo = nullptr;
 
+    fTimestampPeriod = gpu->vkCaps().getTimestampPeriod();
+
     GR_VK_CALL_ERRCHECK(gpu, BeginCommandBuffer(fCmdBuffer, &cmdBufferBeginInfo));
+
+    GR_VK_CALL(gpu->vkInterface(),
+               CmdResetQueryPool(fCmdBuffer, 
+                                 fStatistics.queryPool, 
+                                 0, 
+                                 2));
+    
+    GR_VK_CALL(gpu->vkInterface(),
+               CmdWriteTimestamp(fCmdBuffer,
+                                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                 fStatistics.queryPool, 
+                                 0));
+
     fIsActive = true;
 }
 
@@ -461,16 +494,36 @@ void GrVkPrimaryCommandBuffer::end(GrVkGpu* gpu, bool abandoningBuffer) {
     // layers complain about calling end on a command buffer that contains resources that have
     // already been deleted. From the vulkan API it isn't required to end the command buffer to
     // delete it, so we just skip the vulkan API calls and update our own state tracking.
+    uint64_t timestamp;
+    GR_VK_CALL(gpu->vkInterface(),
+               GetQueryPoolResults(gpu->device(),
+                                   fStatistics.queryPool,
+                                   static_cast<uint32_t>(0),
+                                   static_cast<uint32_t>(1),
+                                   2 * sizeof(uint64_t),
+                                   &timestamp,
+                                   2 * sizeof(uint64_t),
+                                   VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT));
+
+    LOGD("Period: %f", fTimestampPeriod);
+    LOGD("Timestamp: %f", (timestamp - fStatistics.value) * fTimestampPeriod / 1000000.0f);
+    fStatistics.value = 0; 
+    fStatistics.value += timestamp;
+                    
     if (!abandoningBuffer) {
         this->submitPipelineBarriers(gpu);
 
         GR_VK_CALL_ERRCHECK(gpu, EndCommandBuffer(fCmdBuffer));
     }
+
+
     this->invalidateState();
     fIsActive = false;
     fHasWork = false;
+    // LOGD("Wooooooow: %d", fStatistics.queryPool);
 }
 
+// Todo: Measure this area too!
 bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
                                                const GrVkRenderPass* renderPass,
                                                sk_sp<const GrVkFramebuffer> framebuffer,
@@ -501,7 +554,8 @@ bool GrVkPrimaryCommandBuffer::beginRenderPass(GrVkGpu* gpu,
 
     VkSubpassContents contents = forSecondaryCB ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
                                                 : VK_SUBPASS_CONTENTS_INLINE;
-
+    
+    
     GR_VK_CALL(gpu->vkInterface(), CmdBeginRenderPass(fCmdBuffer, &beginInfo, contents));
     fActiveRenderPass = renderPass;
     this->addResource(renderPass);

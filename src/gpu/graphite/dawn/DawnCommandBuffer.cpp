@@ -153,29 +153,6 @@ void DawnCommandBuffer::endTimerQuery() {
     }
 }
 
-std::optional<GpuStats> DawnCommandBuffer::gpuStats() {
-    auto& buffer = fTimestampQueryXferBuffer ? fTimestampQueryXferBuffer : fTimestampQueryBuffer;
-    if (!buffer) {
-        return {};
-    }
-    if (fSharedContext->caps()->bufferMapsAreAsync()) {
-        if (!buffer->isMapped()) {
-            return {};
-        }
-    }
-    uint64_t* results = static_cast<uint64_t*>(buffer->map());
-    if (!results) {
-        SKGPU_LOG_W("Failed to get timer query results because buffer couldn't be mapped.");
-        return {};
-    }
-    if (results[1] < results[0]) {
-        return {};
-    }
-    GpuStats stats;
-    stats.elapsedTime = results[1] - results[0];
-    return stats;
-}
-
 wgpu::CommandBuffer DawnCommandBuffer::finishEncoding() {
     SkASSERT(fCommandEncoder);
     wgpu::CommandBuffer cmdBuffer = fCommandEncoder.Finish();

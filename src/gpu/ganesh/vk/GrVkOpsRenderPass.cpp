@@ -270,6 +270,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
 
     GrVkResourceProvider::CompatibleRPHandle rpHandle = fFramebuffer->compatibleRenderPassHandle();
     SkASSERT(rpHandle.isValid());
+    // Todo: Measure the creation of the current render pass
     fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                  vkColorOps,
                                                                  vkResolveOps,
@@ -281,6 +282,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
 
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
         SkASSERT(fGpu->cmdPool());
+        // Todo: Measure the creation of the secondary command buffer
         fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
         if (!fCurrentSecondaryCommandBuffer) {
             fCurrentRenderPass = nullptr;

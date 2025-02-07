@@ -100,9 +100,6 @@
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 #include "src/text/gpu/VertexFiller.h"
 
-#include <algorithm>
-#include <atomic>
-#include <cstddef>
 #include <functional>
 #include <optional>
 #include <string>

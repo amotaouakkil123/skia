@@ -6,6 +6,7 @@
 */
 
 #include "tools/sk_app/Window.h"
+#include "tools/sk_app/ohos/ohos_log.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
@@ -90,6 +91,7 @@ void Window::onPaint() {
     if (!fIsActive) {
         return;
     }
+    SkASSERT(this);
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer == nullptr) {
         printf("no backbuffer!?\n");
@@ -104,8 +106,9 @@ void Window::onPaint() {
     this->visitLayers([=](Layer* layer) { layer->onPaint(backbuffer.get()); });
 
     if (auto dContext = this->directContext()) {
+        LOGI("Window::onPaint We fetched a directContext");
         dContext->flushAndSubmit(backbuffer.get(), GrSyncCpu::kNo);
-    }
+    }   
 
     fWindowContext->swapBuffers();
 }

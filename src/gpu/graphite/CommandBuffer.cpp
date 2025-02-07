@@ -27,6 +27,8 @@
 #include <atomic>
 #include <cstdint>
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 namespace skgpu::graphite {
 
 CommandBuffer::CommandBuffer(Protected isProtected) : fIsProtected(isProtected) {}
@@ -94,6 +96,7 @@ SkSpan<const sk_sp<Buffer>> CommandBuffer::buffersToAsyncMapOnSubmit() const {
     return fBuffersToAsyncMap;
 }
 
+// Todo: Measure
 bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   sk_sp<Texture> colorTexture,
                                   sk_sp<Texture> resolveTexture,
@@ -103,6 +106,8 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   SkIPoint resolveOffset,
                                   SkISize viewportDims,
                                   const DrawPassList& drawPasses) {
+    LOGD("Adding a render pass...");
+    LOGD("Render Pass Info: %s", renderPassDesc.toString().c_str());
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     SkIRect renderPassBounds;

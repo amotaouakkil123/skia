@@ -29,6 +29,8 @@
 #include "src/gpu/graphite/render/VerticesRenderStep.h"
 #include "src/sksl/SkSLUtil.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 #ifdef SK_ENABLE_VELLO_SHADERS
 #include "src/gpu/graphite/compute/VelloRenderer.h"
 #endif

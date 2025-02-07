@@ -27,6 +27,15 @@ if (skia_enable_vello_shaders) {
       bazel_args += [ "--platforms=//bazel/platform:mac_x64_hermetic" ]
     }
   }
+
+  if (is_ohos) {
+    if (target_cpu == "arm64") {
+      bazel_args += [
+        "--config=aarch64"
+      ]
+    }
+  }
+
   if (!is_debug) {
     bazel_args += [ "--compilation_mode=opt" ]
   }

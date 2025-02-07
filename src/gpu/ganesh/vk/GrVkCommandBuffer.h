@@ -180,6 +180,14 @@ protected:
     skia_private::STArray<16, sk_sp<const GrBuffer>> fTrackedGpuBuffers;
     skia_private::STArray<16, gr_cb<const GrSurface>> fTrackedGpuSurfaces;
 
+    // Timestamp struct from vulkan-hpp
+    struct TimeStamps
+	{
+		uint64_t    value = 0;        // GPU time stamps will be stored in an array
+		VkQueryPool queryPool;        // A query pool is required to use GPU time stamps
+
+	};
+
     // Tracks whether we are in the middle of a command buffer begin/end calls and thus can add
     // new commands to the buffer;
     bool                      fIsActive;
@@ -204,6 +212,9 @@ protected:
     VkViewport fCachedViewport;
     VkRect2D   fCachedScissor;
     float      fCachedBlendConstant[4];
+
+    TimeStamps fStatistics;
+    float fTimestampPeriod;
 
     // Tracking of memory barriers so that we can submit them all in a batch together.
     skia_private::STArray<1, VkBufferMemoryBarrier> fBufferBarriers;
@@ -344,9 +355,11 @@ public:
     void recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool);
 
 private:
-    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer)
+    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer, VkQueryPool queryPool)
         : INHERITED(cmdBuffer)
-        , fSubmitFence(VK_NULL_HANDLE) {}
+        , fSubmitFence(VK_NULL_HANDLE) {
+            fStatistics.queryPool = queryPool;
+        }
 
     void onFreeGPUData(const GrVkGpu* gpu) const override;
 

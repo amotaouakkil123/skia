@@ -247,6 +247,8 @@ public:
     // the GrVkGpu should be processed by this function so that we respond to OOMs and lost devices.
     bool checkVkResult(VkResult);
 
+    float queryTimestampPeriod() { return fTimestampPeriod; }
+
 private:
     GrVkGpu(GrDirectContext*,
             const skgpu::VulkanBackendContext&,
@@ -487,6 +489,8 @@ private:
 
     skgpu::VulkanDeviceLostContext                        fDeviceLostContext;
     skgpu::VulkanDeviceLostProc                           fDeviceLostProc;
+
+    float fTimestampPeriod;
 
     using INHERITED = GrGpu;
 };

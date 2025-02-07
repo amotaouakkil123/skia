@@ -25,6 +25,8 @@
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/gpu/vk/vulkanmemoryallocator/VulkanAMDMemoryAllocator.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
 #undef CreateSemaphore
@@ -447,10 +449,12 @@ void VulkanWindowContext::destroyBuffers() {
 }
 
 VulkanWindowContext::~VulkanWindowContext() {
+    LOGI("VulkanWindowContext::~VulkanWindowContext Destroying Vulkan window context");
     this->destroyContext();
 }
 
 void VulkanWindowContext::destroyContext() {
+    LOGI("VulkanWindowContext::destroyContext We are destroying the Ganesh Vulkan context");
     if (this->isValid()) {
         fQueueWaitIdle(fPresentQueue);
         fDeviceWaitIdle(fDevice);

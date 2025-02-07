@@ -38,6 +38,8 @@
 #include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/utils/SkShaderUtils.h"
 
+#include "tools/sk_app/ohos/ohos_log.h"
+
 #include <string.h>
 #include <cstdint>
 #include <memory>
