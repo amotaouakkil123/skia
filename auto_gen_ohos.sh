@@ -51,6 +51,19 @@ fi
 echo -en "${YELLOW}Using${NOCOLOR} SDK path = "
 echo "$ohos_sdk_path"
 
+if [ -d "$ohos_sdk_path/sysroot" ]; then
+    sdk_system_root=$ohos_sdk_path/sysroot
+elif [ -d "$ohos_sdk_path/native/sysroot" ]; then
+    sdk_system_root=$ohos_sdk_path/native/sysroot
+else
+    echo "Cannot find sysroot. Check your SDK version."
+    exit 1
+fi
+
+third_party_dng_sdk_path=$skia_path/third_party/externals/dng_sdk
+third_party_zlib_path=$skia_path/third_party/externals/zlib
+third_party_microhttpd_path=$skia_path/third_party/externals/microhttpd/src/include
+
 if [ -d "$third_party_microhttpd_path" ]; then
     third_party_microhttpd_path=$third_party_microhttpd_path/microhttpd.h
     cp modified_external_third_party/microhttpd.h $third_party_microhttpd_path
