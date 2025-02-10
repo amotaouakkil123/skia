@@ -23,7 +23,7 @@ static std::string GetXComponentId(OH_NativeXComponent* component) {
     return std::string(idStr);
 }
 
-OhosSkiaApp::OhosSkiaApp(std:string& id)
+OhosSkiaApp::OhosSkiaApp(std::string& id)
     : fId(id) {
         LOGD("OhosSkiaApp constructor!");
         auto renderCallback = OhosSkiaApp::GetNXComponentCallback();
@@ -71,7 +71,7 @@ OhosSkiaApp* OhosSkiaApp::GetInstance(std::string& id) {
     return fInstanceMap[id];
 }
 
-OhosSkiaApp* OhosSkiaApp::SetInstance(std::string& id) {
+void OhosSkiaApp::SetInstance(std::string& id) {
     LOGD("OhosSkiaApp::SetInstance We are setting instances");
     if (fInstanceMap.find(id) == fInstanceMap.end()) {
         OhosSkiaApp* instance = new OhosSkiaApp(id);
@@ -79,7 +79,7 @@ OhosSkiaApp* OhosSkiaApp::SetInstance(std::string& id) {
     }
 }
 
-void OhosSkiaApp::OnSurfaceCreatedCB(OH_NativeXCcomponent* component, void* window) {
+void OhosSkiaApp::OnSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     LOGD("OhosSkiaApp::OnSurfaceCreatedCB");
     std::string id = GetXComponentId(component);
     auto render = OhosSkiaApp::GetInstance(id);

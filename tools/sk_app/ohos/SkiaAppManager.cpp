@@ -39,7 +39,7 @@ bool SkiaAppManager::Init(napi_env env, napi_value exports) {
     napi_value exportInstance = nullptr;
     OH_NativeXComponent* nativeXComponent = nullptr;
     // Fetch the XComponent handler
-    napi_get_named_property(env, exports, OH_NATIVE_XCOMPONENT_OBJ, &exportInstace);
+    napi_get_named_property(env, exports, OH_NATIVE_XCOMPONENT_OBJ, &exportInstance);
     // Get nativeXComponent
     napi_unwrap(env, exportInstance, reinterpret_cast<void**>(&nativeXComponent));
 
@@ -50,7 +50,7 @@ bool SkiaAppManager::Init(napi_env env, napi_value exports) {
     std::string id(idStr);
     SetNativeXComponent(id, nativeXComponent);
     OhosSkiaApp* skiaInstance = GetRender(id);
-    skiaInstance->SetNativeXComponent(nativeXComponent)
+    skiaInstance->SetNativeXComponent(nativeXComponent);
     return true;
 }
 

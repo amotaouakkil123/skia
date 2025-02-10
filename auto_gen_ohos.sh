@@ -64,13 +64,13 @@ third_party_dng_sdk_path=$skia_path/third_party/externals/dng_sdk
 third_party_zlib_path=$skia_path/third_party/externals/zlib
 third_party_microhttpd_path=$skia_path/third_party/externals/microhttpd/src/include
 
-if [ -d "$third_party_microhttpd_path" ]; then
-    third_party_microhttpd_path=$third_party_microhttpd_path/microhttpd.h
-    cp modified_external_third_party/microhttpd.h $third_party_microhttpd_path
-else
-    echo "Cannot find $third_party_microhttpd_path, make sure you have successfully run \`python3 tools/git-sync-deps\`"
-    exit 1
-fi
+# if [ -d "$third_party_microhttpd_path" ]; then
+#     third_party_microhttpd_path=$third_party_microhttpd_path/microhttpd.h
+#     cp modified_external_third_party/microhttpd.h $third_party_microhttpd_path
+# else
+#     echo "Cannot find $third_party_microhttpd_path, make sure you have successfully run \`python3 tools/git-sync-deps\`"
+#     exit 1
+# fi
 
 if [ -d "$third_party_dng_sdk_path" ]; then
     # Change dng sdk dng_safe_arithmetic
@@ -145,7 +145,7 @@ bin/gn gen "$default_output_path" --args="
     target_os=\"ohos\"
     target_cpu=\"arm64\"
     skia_enable_graphite=true
-    skia_use_gl=false
+    skia_use_gl=true
     skia_use_vulkan=true
     skia_use_dawn=false
     cc=\"$cc_path\"

@@ -12,17 +12,17 @@
 namespace skwindow {
 
 class WindowContext;
-struct DisplayParams;
+class DisplayParams;
 
-std::unique_ptr<WindowContext> MakeVulkanForOhos(OHNativeWindow*, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeVulkanForOhos(OHNativeWindow*,std::unique_ptr<const DisplayParams>);
 
-std::unique_ptr<WindowContext> MakeGraphiteVulkanForOhos(OHNativeWindow*, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeGraphiteVulkanForOhos(OHNativeWindow*, std::unique_ptr<const DisplayParams>);
 
-std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForOhos(OHNativeWindow*, const DisplayParams);
+std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForOhos(OHNativeWindow*, std::unique_ptr<const DisplayParams>);
 
-std::unique_ptr<WindowContext> MakeGLForOhos(OHNativeWindow*, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeGLForOhos(OHNativeWindow*, std::unique_ptr<const DisplayParams>);
 
-std::unique_ptr<WindowContext> MakeRasterForOhos(OHNativeWindow*, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeRasterForOhos(OHNativeWindow*, std::unique_ptr<const DisplayParams>);
 
 } // namespace skwindow
 

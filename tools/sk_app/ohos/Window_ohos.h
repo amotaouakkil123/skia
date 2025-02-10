@@ -1,5 +1,5 @@
 #ifndef Window_ohos_DEFINED
-#defined Window_ohos_DEFINED
+#define Window_ohos_DEFINED
 
 #include "tools/sk_app/Window.h"
 #include "tools/sk_app/ohos/surface_glue_ohos.h"

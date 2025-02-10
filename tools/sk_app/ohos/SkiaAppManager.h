@@ -1,5 +1,5 @@
 #ifndef SKIA_APP_MANAGER_DEFINED
-#defined SKIA_APP_MANAGER_DEFINED
+#define SKIA_APP_MANAGER_DEFINED
 
 //OHOS Header
 #include <napi/native_api.h>

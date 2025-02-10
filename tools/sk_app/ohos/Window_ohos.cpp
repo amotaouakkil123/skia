@@ -3,7 +3,7 @@
 #include "tools/window/ohos/WindowContextFactory_ohos.h"
 #include "tools/sk_app/ohos/logger_common.h"
 
-nammespace sk_app {
+namespace sk_app {
 
 Window* Windows::CreateNativeWindow(void* platformData) {
     Window_ohos* window = new Window_ohos();
@@ -49,22 +49,27 @@ void Window_ohos::initDisplay(OHNativeWindow* window) {
             case kNativeGL_BackendType:
             default:
                 LOGD("Window_ohos::initDisplay creating a OpenGL windowing context");
-                fWindowContext = skwindow::MakeGLForOhos(window, fRequestedDisplayParams);
+                fWindowContext = skwindow::MakeGLForOhos(window, 
+                                                         std::move(fRequestedDisplayParams));
                 break;
 #else
             case kRaster_BackendType:
-                fWindowContext = skwindow::MakeRasterForAndroid(window, fRequestedDisplayParams);
+                fWindowContext = skwindow::MakeRasterForAndroid(window, 
+                                                                std::move(fRequestedDisplayParams));
                 break;
+#endif
 #ifdef SK_VULKAN
             case kVulkan_BackendType:
                 LOGD("Window_ohos::initDisplay Creating a Vulkan windowing context!");
-                fWindowContext = skwindow::MakeVulkanForOhos(window, fRequestedDisplayParams);
+                fWindowContext = skwindow::MakeVulkanForOhos(window, 
+                                                             std::move(fRequestedDisplayParams));
                 break;
 #ifdef SK_GRAPHITE
             case kGraphiteVulkan_BackendType:
                 fWindowContext = skwindow::MakeGraphiteVulkanForOhos(window,
-                                                                     fRequestedDisplayParams);
+                                                                     std::move(fRequestedDisplayParams));
                 break;
+#endif
 #endif
     }
     if (!fWindowContext) {

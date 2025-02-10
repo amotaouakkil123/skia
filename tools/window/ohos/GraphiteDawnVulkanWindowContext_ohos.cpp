@@ -11,7 +11,7 @@ namespace {
 
 class GraphiteDawnVulkanWindowContext_ohos : public GraphiteDawnWindowContext {
 public:
-    GraphiteDawnVulkanWindowContext_ohos(OHNativeWindow* window, const DisplayParams& params);
+    GraphiteDawnVulkanWindowContext_ohos(OHNativeWindow* window, std::unique_ptr<const DisplayParams> params);
     ~GraphiteDawnVulkanWindowContext_ohos() override;
 
     bool onInitializeContext() override;

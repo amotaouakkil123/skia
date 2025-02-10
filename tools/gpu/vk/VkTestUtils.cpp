@@ -9,6 +9,8 @@
 #include "tools/gpu/vk/VkTestMemoryAllocator.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
+#include "tools/sk_app/ohos/logger_common.h"
+
 #ifdef SK_VULKAN
 
 #ifndef SK_GPU_TOOLS_VK_LIBRARY_NAME

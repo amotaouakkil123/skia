@@ -6,7 +6,7 @@
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeVulkanForOhos(OHNativeWindow* window,
-                                                 const DisplayParams& params) {
+                                                 std::unique_ptr<const DisplayParams> params) {
     LOGD("VulkanWindowContext_ohos::MakeVulkanForOhos Vulkan OHOS making the window!");
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
@@ -40,7 +40,7 @@ std::unique_ptr<WindowContext> MakeVulkanForOhos(OHNativeWindow* window,
     };
 
     auto canPresent = [](VkInstance, VkPhysicalDevice, uint32_t) { return true; };
-    std::unique_ptr<WindowContext> ctx(new internal::VulkanWindowContext(params, createVkSurface, 
+    std::unique_ptr<WindowContext> ctx(new internal::VulkanWindowContext(std::move(params), createVkSurface, 
                                                                          canPresent, instProc));
 
     if (!ctx->isValid()) {
