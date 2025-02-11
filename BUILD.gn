@@ -1011,6 +1011,7 @@ optional("gpu") {
         sources += [
           "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
           "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+          "src/gpu/ganesh/gl/android/GrGLMakeNativeInterface_android.cpp",
         ]
         libs += [ "EGL" ]
       }
@@ -1735,7 +1736,7 @@ skia_component("skia") {
     ]
   }
 
-  if (is_linux || is_wasm) {
+  if (is_linux || is_wasm || is_ohos) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
     if (skia_use_egl) {
       libs += [ "GLESv2" ]

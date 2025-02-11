@@ -97,6 +97,13 @@ void OhosSkiaApp::OnSurfaceDestroyedCB(OH_NativeXComponent* component, void* win
     LOGD("OhosSkiaApp::OnSurfaceDestroyedCB");
     std::string id = GetXComponentId(component);
     auto render = OhosSkiaApp::GetInstance(id);
+    render->OnSurfaceDestroyedCB(component, window);
+}
+
+void OhosSkiaApp::DispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
+    LOGD("OhosSkiaApp::DispatchTouchEventCB");
+    std::string id = GetXComponentId(component);
+    auto render = OhosSkiaApp::GetInstance(id);
     render->DispatchTouchEvent(component, window);
 }
 

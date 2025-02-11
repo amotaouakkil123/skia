@@ -42,22 +42,23 @@ bool Window_ohos::attach(BackendType attachType) {
 
 void Window_ohos::initDisplay(OHNativeWindow* window) {
     LOGD("Window_ohos::initDisplay inside initDisplay");
+    attach(kVulkan_BackendType);
     SkASSERT(window);
     // fBackendType = kNativeGL_BackendType;
     switch (fBackendType) {
-#ifdef SK_GL
-            case kNativeGL_BackendType:
-            default:
-                LOGD("Window_ohos::initDisplay creating a OpenGL windowing context");
-                fWindowContext = skwindow::MakeGLForOhos(window, 
-                                                         std::move(fRequestedDisplayParams));
-                break;
-#else
-            case kRaster_BackendType:
-                fWindowContext = skwindow::MakeRasterForAndroid(window, 
-                                                                std::move(fRequestedDisplayParams));
-                break;
-#endif
+// #ifdef SK_GL
+//             case kNativeGL_BackendType:
+//             default:
+//                 LOGD("Window_ohos::initDisplay creating a OpenGL windowing context");
+//                 fWindowContext = skwindow::MakeGLForOhos(window, 
+//                                                          std::move(fRequestedDisplayParams));
+//                 break;
+// #else
+//             case kRaster_BackendType:
+//                 fWindowContext = skwindow::MakeRasterForAndroid(window, 
+//                                                                 std::move(fRequestedDisplayParams));
+//                 break;
+// #endif
 #ifdef SK_VULKAN
             case kVulkan_BackendType:
                 LOGD("Window_ohos::initDisplay Creating a Vulkan windowing context!");
