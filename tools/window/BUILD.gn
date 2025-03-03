@@ -149,9 +149,6 @@ skia_component("window") {
       if (skia_enable_graphite) {
         sources += ["ohos/GraphiteVulkanWindowContext_ohos.cpp"]
       }
-      if (skia_use_dawn) {
-        sources += ["ohos/GraphiteDawnVulkanWindowContext_ohos.cpp"]
-      }
     }
   }
 
@@ -221,6 +218,16 @@ skia_component("window") {
             "GraphiteDawnWindowContext.h",
             "mac/GraphiteDawnMetalWindowContext_mac.h",
             "mac/GraphiteDawnMetalWindowContext_mac.mm",
+          ]
+        }
+      }
+    } else if (is_ohos) {
+      if (dawn_enable_vulkan) {
+        if (skia_enable_graphite) {
+          sources += [
+            "GraphiteDawnWindowContext.cpp",
+            "GraphiteDawnWindowContext.h",
+            "ohos/GraphiteDawnVulkanWindowContext_ohos.cpp"
           ]
         }
       }

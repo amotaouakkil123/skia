@@ -115,7 +115,7 @@ void OhosSkiaApp::OnSurfaceCreated(OH_NativeXComponent* component, void* window)
             "--skps",
             "/data/storage/el1/bundle/entry/resources/resfile/skps",
             "--config",
-            "grvk"
+            "grdawn_vk"
         };
 
         fApp = Application::Create(std::size(gCmdLine),

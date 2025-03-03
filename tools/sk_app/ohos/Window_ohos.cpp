@@ -7,6 +7,7 @@ namespace sk_app {
 
 Window* Windows::CreateNativeWindow(void* platformData) {
     Window_ohos* window = new Window_ohos();
+    LOGD("Windows::Window_ohos CreateNativeWindow creating a Native Window!");
     if (!window->init((OhosSkiaApp*)platformData)) {
         LOGD("Window_ohos::Initialization of OHOS window failed");
         delete window;
@@ -42,7 +43,7 @@ bool Window_ohos::attach(BackendType attachType) {
 
 void Window_ohos::initDisplay(OHNativeWindow* window) {
     LOGD("Window_ohos::initDisplay inside initDisplay");
-    attach(kVulkan_BackendType);
+    attach(kGraphiteDawn_BackendType);
     SkASSERT(window);
     // fBackendType = kNativeGL_BackendType;
     switch (fBackendType) {

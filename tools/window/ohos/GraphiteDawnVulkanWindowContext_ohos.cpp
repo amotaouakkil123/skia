@@ -4,6 +4,8 @@
 #include "tools/window/GraphiteDawnWindowContext.h"
 #include "tools/window/ohos/WindowContextFactory_ohos.h"
 
+#include "tools/sk_app/ohos/logger_common.h"
+
 using skwindow::DisplayParams;
 using skwindow::internal::GraphiteDawnWindowContext;
 
@@ -76,7 +78,8 @@ void GraphiteDawnVulkanWindowContext_ohos::resize(int w, int h) {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForOhos(OHNativeWindow* window,
-                                                         std::unique_ptr<const DisplayParams> params) {
+                                                             std::unique_ptr<const DisplayParams> params) {
+    LOGD("Window::OHOS Entering dawn window context creation");
     std::unique_ptr<WindowContext> ctx(
             new GraphiteDawnVulkanWindowContext_ohos(window, std::move(params)));
     if (!ctx->isValid()) {

@@ -547,7 +547,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomWindowLocation{0.0f, 0.0f}
     , fLastImage(nullptr)
     , fZoomUI(false)
-    , fBackendType(sk_app::Window::kVulkan_BackendType)
+    , fBackendType(sk_app::Window::kGraphiteDawn_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
     // Our UI can only tweak gamma (currently), so start out gamma-only
@@ -590,10 +590,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     SetResourcePath("/data/storage/el1/bundle/entry/resources/resfile");
 #endif
 
+
+    LOGD("Viewer::Viewer Creating a viewer instance");
     initializeEventTracingForTools();
     static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
 
-    fBackendType = get_backend_type(FLAGS_backend[0]);
+    fBackendType = sk_app::Window::kGraphiteDawn_BackendType;
     fWindow = Windows::CreateNativeWindow(platformData);
 
     auto paramsBuilder = make_display_params_builder();
