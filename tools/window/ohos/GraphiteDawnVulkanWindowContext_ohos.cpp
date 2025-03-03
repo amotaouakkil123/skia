@@ -27,7 +27,7 @@ private:
 GraphiteDawnVulkanWindowContext_ohos::GraphiteDawnVulkanWindowContext_ohos(
     OHNativeWindow* window,
     std::unique_ptr<const DisplayParams> params)
-    : GraphiteDawnWindowContext(std::move(params), wgpu::TextureFormat::BGRA8Unorm)
+    : GraphiteDawnWindowContext(std::move(params), wgpu::TextureFormat::RGBA8Unorm)
     , fWindow(window) {
     
     unsigned int width, height;
