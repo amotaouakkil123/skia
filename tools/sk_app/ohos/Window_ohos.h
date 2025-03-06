@@ -15,6 +15,9 @@ public:
     void initDisplay(OHNativeWindow* window);
     void onDisplayDestroyed();
 
+    void setRequestedDisplayParams(std::unique_ptr<const skwindow::DisplayParams>,
+        bool allowReattach) override;
+
     void setTitle(const char*) override;
     void show() override {}
 

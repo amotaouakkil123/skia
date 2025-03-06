@@ -88,6 +88,8 @@ void Window::onPaint() {
     if (!fIsActive) {
         return;
     }
+    skgpu::graphite::Recorder* temp = graphiteRecorder();
+    SkASSERT(temp);
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();
     if (backbuffer == nullptr) {
         printf("no backbuffer!?\n");
@@ -179,7 +181,9 @@ skgpu::graphite::Context* Window::graphiteContext() const {
 
 skgpu::graphite::Recorder* Window::graphiteRecorder() const {
 #if defined(SK_GRAPHITE)
+    LOGD("Window::graphiteRecorder Entering graphite section");
     if (!fWindowContext) {
+        LOGD("Window::graphiteRecorder Chief, your stuff is wrong!!!");
         return nullptr;
     }
     return fWindowContext->graphiteRecorder();

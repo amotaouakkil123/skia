@@ -20,7 +20,7 @@ Window* Windows::CreateNativeWindow(void* platformData) {
 bool Window_ohos::init(OhosSkiaApp* ohosSkiaApp) {
     SkASSERT(ohosSkiaApp);
     fOhosSkiaApp = ohosSkiaApp;
-    fOhosSkiaApp ->fWindow = this;
+    fOhosSkiaApp->fWindow = this;
     return true;
 }
 
@@ -39,6 +39,27 @@ bool Window_ohos::attach(BackendType attachType) {
     // the native window is ready to use.
     // The creation will be done in initDisplay, which is initiated by kSurfaceCreated event.
     return true;
+}
+
+void Window_ohos::setRequestedDisplayParams(std::unique_ptr<const skwindow::DisplayParams> params,
+                                            bool allowReattach) {
+    LOGD("Window_ohos::setRequestedDisplayParams setting display parameters");
+#if defined(SK_VULKAN)
+// Vulkan on unix crashes if we try to reinitialize the vulkan context without remaking the
+// window.
+    if (fBackendType == kVulkan_BackendType && allowReattach) {
+        // Need to change these early, so attach() creates the window context correctly
+        fRequestedDisplayParams = std::move(params);
+        this->detach();
+        this->attach(fBackendType);
+        return;
+    }
+#endif
+
+    Window::setRequestedDisplayParams(std::move(params), allowReattach);
+    if (fRequestedDisplayParams == nullptr) {
+        LOGD("Window_ohos::setRequestedDisplayParams is no working");
+    }
 }
 
 void Window_ohos::initDisplay(OHNativeWindow* window) {
@@ -68,6 +89,11 @@ void Window_ohos::initDisplay(OHNativeWindow* window) {
                 break;
 #ifdef SK_GRAPHITE
             case kGraphiteVulkan_BackendType:
+                if (fRequestedDisplayParams == nullptr) {
+                    LOGD("Window_ohos::initDisplay the display params are not good GRAPHITE NATIVE!!!!!!!!");
+                } else {
+                    LOGD("Window_ohos::initDisplay the display params are still really good GRAPHITE NATIVE");
+                }
                 fWindowContext = skwindow::MakeGraphiteVulkanForOhos(window,
                                                                      std::move(fRequestedDisplayParams));
                 break;
@@ -76,8 +102,13 @@ void Window_ohos::initDisplay(OHNativeWindow* window) {
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
 
             case kGraphiteDawn_BackendType:
+                if (fRequestedDisplayParams == nullptr) {
+                    LOGD("Window_ohos::initDisplay the display params are not good GRAPHITE DAWN!!!!!!!!");
+                } else {
+                    LOGD("Window_ohos::initDisplay the display params are still really good GRAPHITE DAWN");
+                }
                 fWindowContext = skwindow::MakeGraphiteDawnVulkanForOhos(window,
-                                                                         std::move(fRequestedDisplayParams));
+                                                                         fRequestedDisplayParams->clone());
 
 #endif
 
@@ -87,6 +118,12 @@ void Window_ohos::initDisplay(OHNativeWindow* window) {
         LOGD("Window_ohos::initDisplay Completely failed to create a vulkan window");
     } else {
         LOGD("Window_ohos::initDisplay We did good!");
+    }
+
+    if (fRequestedDisplayParams == nullptr) {
+        LOGD("Window_ohos::initDisplay the display parameters are screwed!!");
+    } else {
+        LOGD("Window_ohos::initDisplay the display parameters are the greatest!!");
     }
     this->onBackendCreated();
 }

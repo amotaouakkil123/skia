@@ -227,7 +227,8 @@ skia_component("window") {
           sources += [
             "GraphiteDawnWindowContext.cpp",
             "GraphiteDawnWindowContext.h",
-            "ohos/GraphiteDawnVulkanWindowContext_ohos.cpp"
+            "ohos/GraphiteDawnVulkanWindowContext_ohos.cpp",
+            "GraphiteDisplayParams.h"
           ]
         }
       }

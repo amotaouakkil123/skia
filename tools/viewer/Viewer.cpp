@@ -623,6 +623,17 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     paramsBuilder.graphiteTestOptions(gto);
 #endif
     fWindow->setRequestedDisplayParams(paramsBuilder.build());
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer For some reason, display parameters are wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are great!");
+    }
+
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer On second call, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great!");
+    }
     fDisplay = paramsBuilder.build();
     fRefresh = FLAGS_redraw;
 
@@ -640,6 +651,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fWindow->pushLayer(this);
     fWindow->pushLayer(&fStatsLayer);
     fWindow->pushLayer(&fImGuiLayer);
+
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer On 655 call, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great 655!");
+    }
 
     // add key-bindings
     fCommands.addCommand(' ', "GUI", "Toggle Debug GUI", [this]() {
@@ -675,6 +692,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         auto paramsBuilder = make_display_params_builder(params);
         paramsBuilder.disableVsync(!params->disableVsync());
         fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        if (fWindow->getRequestedDisplayParams() == nullptr) {
+            LOGD("Viewer::Viewer Line 683 Display parameter is nullptr");
+        }
         this->updateTitle();
         fWindow->inval();
     });
@@ -683,6 +703,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         auto paramsBuilder = make_display_params_builder(params);
         paramsBuilder.delayDrawableAcquisition(!params->delayDrawableAcquisition());
         fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        if (fWindow->getRequestedDisplayParams() == nullptr) {
+            LOGD("Viewer::Viewer Line 694 Display parameter is nullptr");
+        }
         this->updateTitle();
         fWindow->inval();
     });
@@ -726,6 +749,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         grOpts.fWireframeMode = !grOpts.fWireframeMode;
         paramsBuilder.grContextOptions(grOpts);
         fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        if (fWindow->getRequestedDisplayParams() == nullptr) {
+            LOGD("Viewer::Viewer Line 740 Display parameter is nullptr");
+        }
         fWindow->inval();
     });
     fCommands.addCommand('w', "Modes", "Toggle reduced shaders", [this]() {
@@ -735,6 +761,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         grOpts.fReducedShaderVariations = !grOpts.fReducedShaderVariations;
         paramsBuilder.grContextOptions(grOpts);
         fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        if (fWindow->getRequestedDisplayParams() == nullptr) {
+            LOGD("Viewer::Viewer Line 752 Display parameter is nullptr");
+        }
         fWindow->inval();
     });
     fCommands.addCommand(skui::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
@@ -774,6 +803,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     });
     fCommands.addCommand('G', "Modes", "Geometry", [this]() {
         auto params = fWindow->getRequestedDisplayParams();
+        if (params == nullptr) {
+            LOGD("Viewer::Viewer Line 794 Display parameter is nullptr");
+        }
         auto paramsBuilder = make_display_params_builder(params);
         SkSurfaceProps newProps;
 
@@ -804,6 +836,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         }
         paramsBuilder.surfaceProps(newProps);
         fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        if (fWindow->getRequestedDisplayParams() == nullptr) {
+            LOGD("Viewer::Viewer Line 813 Display parameter is nullptr");
+        }
         this->updateTitle();
         fWindow->inval();
     });
@@ -840,6 +875,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
         paramsBuilder.surfaceProps(newProps);
         fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        if (fWindow->getRequestedDisplayParams() == nullptr) {
+            LOGD("Viewer::Viewer Line 866 Display parameter is nullptr");
+        }
         this->updateTitle();
         fWindow->inval();
     });
@@ -922,10 +960,21 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
 
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer On 963, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great 963!");
+    }
     // set up slides
     this->initSlides();
     if (FLAGS_list) {
         this->listNames();
+    }
+
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer On 974, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great 974!");
     }
 
     fPerspectivePoints[0].set(0, 0);
@@ -934,15 +983,37 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fPerspectivePoints[3].set(1, 1);
     fAnimTimer.run();
 
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer 986, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great 986!");
+    }
+
     auto gamutImage = ToolUtils::GetResourceAsImage("images/gamut.png");
     if (gamutImage) {
         fImGuiGamutPaint.setShader(gamutImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear)));
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
 
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer On 998, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great 998!");
+    }
+
     fWindow->attach(backend_type_for_window(fBackendType));
     this->initGpuTimer();
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer On 1006, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great 1006!");
+    }
     this->setCurrentSlide(this->startupSlide());
+    if (fWindow->getRequestedDisplayParams() == nullptr) {
+        LOGD("Viewer::Viewer On 1012, the params wrong");
+    } else {
+        LOGD("Viewer::Viewer The display params are still great 1012!");
+    }
 }
 
 static sk_sp<SkData> data_from_file(FILE* fp) {
@@ -1337,6 +1408,12 @@ void Viewer::updateTitle() {
     }
 
     auto params = fWindow->getRequestedDisplayParams();
+    if (params == nullptr) {
+        LOGD("Viewer::updateTitle We have bad display parameters");
+    } else {
+        LOGD("Viewer::updateTitle We have good display parameters");
+    }
+
     if (fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
         switch (params->surfaceProps().pixelGeometry()) {
             case kUnknown_SkPixelGeometry:
@@ -1371,7 +1448,19 @@ void Viewer::updateTitle() {
 
     if (is_graphite_backend_type(fBackendType)) {
 #if defined(SK_GRAPHITE)
-        auto graphiteOptions = fWindow->getRequestedDisplayParams()->graphiteTestOptions();
+        // if (fWindow == nullptr) {
+        //     LOGD("No window is initialized!");
+        // }
+        // if (fWindow->getRequestedDisplayParams() == nullptr) {
+        //     LOGD("We do not get display parameters");
+        // }
+        // if (fWindow->getRequestedDisplayParams()->graphiteTestOptions()) {
+        //     LOGD("We even get test options!!!!");
+        // }
+        if (params == nullptr) {
+            LOGD("Viewer::updateTitle Params is invalid");
+        }
+        auto graphiteOptions = params->graphiteTestOptions();
         SkASSERT(graphiteOptions);
         skgpu::graphite::PathRendererStrategy strategy =
                 graphiteOptions->fPriv.fPathRendererStrategy;
@@ -1382,7 +1471,7 @@ void Viewer::updateTitle() {
 #endif
     } else {
         GpuPathRenderers pr =
-                fWindow->getRequestedDisplayParams()->grContextOptions().fGpuPathRenderers;
+                params->grContextOptions().fGpuPathRenderers;
         if (GpuPathRenderers::kDefault != pr) {
             title.appendf(" [Path renderer: %s]", gGaneshPathRendererNames[pr].c_str());
         }

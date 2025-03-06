@@ -124,8 +124,11 @@ void OhosSkiaApp::OnSurfaceCreated(OH_NativeXComponent* component, void* window)
         
         fNativeWindow = (OHNativeWindow*)window;
         auto window_ohos = (Window_ohos*)fWindow;
+        if (window_ohos->getRequestedDisplayParams() == nullptr) {
+            LOGD("Found the flaw!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
         window_ohos->initDisplay(fNativeWindow);
-        ((Window_ohos*)fWindow)->paintIfNeeded();
+        window_ohos->paintIfNeeded();
         fRenderThread = std::thread(std::bind(&OhosSkiaApp::RenderThread, this));
     }
 }

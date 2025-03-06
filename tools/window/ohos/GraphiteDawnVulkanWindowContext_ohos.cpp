@@ -30,9 +30,14 @@ GraphiteDawnVulkanWindowContext_ohos::GraphiteDawnVulkanWindowContext_ohos(
     : GraphiteDawnWindowContext(std::move(params), wgpu::TextureFormat::RGBA8Unorm)
     , fWindow(window) {
     
+    if (params == nullptr) {
+        LOGD("WindowContext::MakeGraphiteDawnVulkanForOhos Display params are soooooooo screwed");
+    } else {
+        LOGD("WindowContext::MakeGraphiteDawnVulkanForOhos ooo lala the parameters are great!! :)");
+    }
     unsigned int width, height;
     OH_NativeWindow_NativeWindowHandleOpt(window, GET_BUFFER_GEOMETRY, &height, &width);
-    this->initializeContext(width, height);
+    this->initializeContext(128, 128);
 }
 
 GraphiteDawnVulkanWindowContext_ohos::~GraphiteDawnVulkanWindowContext_ohos() {
@@ -80,6 +85,11 @@ namespace skwindow {
 std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForOhos(OHNativeWindow* window,
                                                              std::unique_ptr<const DisplayParams> params) {
     LOGD("Window::OHOS Entering dawn window context creation");
+    if (params == nullptr) {
+        LOGD("WindowContext::MakeGraphiteDawnVulkanForOhos Display params are ;(((((())))))");
+    } else {
+        LOGD("WindowContext::MakeGraphiteDawnVulkanForOhos der parameters are splendid yaaa");
+    }
     std::unique_ptr<WindowContext> ctx(
             new GraphiteDawnVulkanWindowContext_ohos(window, std::move(params)));
     if (!ctx->isValid()) {

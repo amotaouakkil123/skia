@@ -6,6 +6,7 @@
  */
 
 #include "tools/graphite/GraphiteToolUtils.h"
+#include "tools/sk_app/ohos/logger_common.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
@@ -102,10 +103,10 @@ private:
 namespace ToolUtils {
 
 skgpu::graphite::RecorderOptions CreateTestingRecorderOptions() {
+    LOGD("We are reaching the proper methods to get things initialized");
     skgpu::graphite::RecorderOptions options;
 
     options.fImageProvider.reset(new TestingImageProvider);
-
     return options;
 }
 

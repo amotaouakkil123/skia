@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/graphite/TestOptions.h"
 #include "tools/window/DisplayParams.h"
+#include "tools/sk_app/ohos/logger_common.h"
 
 namespace skwindow {
 
@@ -35,9 +36,12 @@ struct GraphiteTestOptions {
 
 class GraphiteDisplayParams : public DisplayParams {
 public:
-    GraphiteDisplayParams(GraphiteTestOptions opts) : DisplayParams(), fGraphiteTestOptions(opts) {}
+    GraphiteDisplayParams(GraphiteTestOptions opts) : DisplayParams(), fGraphiteTestOptions(opts) {
+        LOGD("GraphiteDisplayParams::GraphiteDisplayParams Initializing graphite test options with copy constructor");
+    }
 
     GraphiteDisplayParams(const DisplayParams* other) : DisplayParams(other) {
+        LOGD("GraphiteDisplayParams::GraphiteDisplayParams Initializing graphite test options with displayParams pointers");
         if (auto existing = other->graphiteTestOptions()) {
             fGraphiteTestOptions = *existing;
         } else {
@@ -50,6 +54,7 @@ public:
     }
 
     const GraphiteTestOptions* graphiteTestOptions() const override {
+        LOGD("GraphiteDisplayParams::graphiteTestOptions We are fetching graphite test options");
         return &fGraphiteTestOptions;
     }
 
