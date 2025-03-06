@@ -45,7 +45,10 @@ public:
     GrDirectContext* directContext() const { return fContext.get(); }
 #if defined(SK_GRAPHITE)
     skgpu::graphite::Context* graphiteContext() const { return fGraphiteContext.get(); }
-    skgpu::graphite::Recorder* graphiteRecorder() const { return fGraphiteRecorder.get(); }
+    skgpu::graphite::Recorder* graphiteRecorder() const { return clone(); }
+    std::unique_ptr<skgpu::graphite::Recorder> clone() const { // Don't know if that makes a difference
+        return std::make_unique<DisplayParams>(fGraphiteRecorder.get());
+    }
 #endif
 
     using GpuTimerCallback = std::function<void(uint64_t ns)>;
