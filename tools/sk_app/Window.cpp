@@ -88,6 +88,7 @@ void Window::onPaint() {
     if (!fIsActive) {
         return;
     }
+    SkASSERT(this);
     skgpu::graphite::Recorder* temp = graphiteRecorder();
     SkASSERT(temp);
     sk_sp<SkSurface> backbuffer = fWindowContext->getBackbufferSurface();

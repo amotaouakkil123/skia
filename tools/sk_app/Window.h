@@ -29,6 +29,7 @@ class Context;
 class Recorder;
 }
 
+
 namespace skwindow {
 class DisplayParams;
 class WindowContext;
@@ -38,6 +39,8 @@ namespace sk_app {
 
 class Window {
 public:
+    friend skwindow::WindowContext;
+
     virtual ~Window();
 
     virtual void setTitle(const char*) = 0;

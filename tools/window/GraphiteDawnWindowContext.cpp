@@ -38,14 +38,16 @@ GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const Displ
 }
 
 void GraphiteDawnWindowContext::initializeContext(int width, int height) {
+    LOGD("GraphiteDawnWindowContext::initializeContext Entering more dawn initialization");
     SkASSERT(!fContext);
 
     fWidth = width;
     fHeight = height;
 
-    if (!this->onInitializeContext())
+    if (!this->onInitializeContext()) {
         LOGD("GraphiteDawnWindowContext::initializeContext Failed to initialize a base context");
         return;
+    }
 
     SkASSERT(fDevice);
     SkASSERT(fSurface);
@@ -74,6 +76,8 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     if (fGraphiteRecorder == nullptr) {
         LOGD("GraphiteDawnWindowContext::initializeContext failed to get a graphite recorder");
+    } else {
+        LOGD("GraphiteDawnWindowContext::Initialize context OHHHHHHHHHH NOW ITS CLEAR!");
     }
     if (this->graphiteRecorder() == nullptr) {
         LOGD("GraphiteDawnWindowContext::initializeContext Broooooooo");
@@ -115,7 +119,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     SkASSERT(this->graphiteRecorder());
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                   backendTex,
-                                                  kBGRA_8888_SkColorType,
+                                                  kRGBA_8888_SkColorType,
                                                   fDisplayParams->colorSpace(),
                                                   &fDisplayParams->surfaceProps());
     SkASSERT(surface);

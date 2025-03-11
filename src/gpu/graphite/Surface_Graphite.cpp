@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "tools/sk_app/ohos/logger_common.h"
 
 namespace skgpu::graphite {
 
@@ -241,6 +242,7 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
 
     if (!recorder) {
+        LOGD("Surface_Graphite::WrapBackendTexture Recorder is nullptr");
         return nullptr;
     }
 
@@ -249,6 +251,7 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
     SkColorInfo info(ct, kPremul_SkAlphaType, std::move(cs));
 
     if (!validate_backend_texture(caps, backendTex, info)) {
+        LOGD("Surface_Graphite::WrapBackendTexture Backend texture was not validated properly");
         SKGPU_LOG_E("validate_backend_texture failed: backendTex.info = %s; colorType = %d",
                     backendTex.info().toString().c_str(),
                     info.colorType());
@@ -262,6 +265,7 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
     sk_sp<Texture> texture =
             recorder->priv().resourceProvider()->createWrappedTexture(backendTex, std::move(label));
     if (!texture) {
+        LOGD("Surface_Graphite::WrapBackendTexture Texture is nullptr");
         return nullptr;
     }
     texture->setReleaseCallback(std::move(releaseHelper));

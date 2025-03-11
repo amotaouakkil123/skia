@@ -45,6 +45,7 @@ GraphiteDawnVulkanWindowContext_ohos::~GraphiteDawnVulkanWindowContext_ohos() {
 }
 
 bool GraphiteDawnVulkanWindowContext_ohos::onInitializeContext() {
+    LOGD("GraphiteDawnVulkanWindowContext_ohos::onInitializeContext entering the context initialization");
     SkASSERT(!!fWindow);
 
     auto device = this->createDevice(wgpu::BackendType::Vulkan);
