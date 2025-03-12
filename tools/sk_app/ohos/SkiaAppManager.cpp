@@ -4,15 +4,11 @@
 // NAP Entry to drive the application!
 EXTERN_C_START
 static napi_value Init(napi_env env, napi_value exports) {
-    LOGD("We are doing this!");
     if ((env == nullptr) || (exports == nullptr)) {
         return nullptr;
     }
 
-    if (!sk_app::SkiaAppManager::GetInstance()->Init(env, exports)) {
-        LOGE("Failed to init NAPI!");
-    }
-
+    sk_app::SkiaAppManager::GetInstance()->Init(env, exports);
     return exports;
 }
 EXTERN_C_END
@@ -49,8 +45,10 @@ bool SkiaAppManager::Init(napi_env env, napi_value exports) {
     OH_NativeXComponent_GetXComponentId(nativeXComponent, idStr, &idSize);
     std::string id(idStr);
     SetNativeXComponent(id, nativeXComponent);
+
     OhosSkiaApp* skiaInstance = GetRender(id);
     skiaInstance->SetNativeXComponent(nativeXComponent);
+
     return true;
 }
 
@@ -65,4 +63,5 @@ OhosSkiaApp* SkiaAppManager::GetRender(std::string& id) {
 void SkiaAppManager::SetNativeXComponent(std::string& id, OH_NativeXComponent* nativeXComponent) {
     nativeXComponentMap[id] = nativeXComponent;
 }
+
 }

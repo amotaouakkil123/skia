@@ -1,14 +1,11 @@
 #ifndef surface_glue_ohos_DEFINED
 #define surface_glue_ohos_DEFINED
 
-// OHOS Headers
 #include <napi/native_api.h>
 #include <ace/xcomponent/native_interface_xcomponent.h>
 #include <arkui/native_node.h>
 #include <native_window/external_window.h>
-#include <js_native_api.h>
-#include <js_native_api_types.h>
-// c++ stdlib
+
 #include <string>
 #include <unordered_map>
 #include <thread>

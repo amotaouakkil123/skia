@@ -20,10 +20,6 @@ std::unique_ptr<WindowContext> MakeGraphiteVulkanForOhos(OHNativeWindow*, std::u
 
 std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForOhos(OHNativeWindow*, std::unique_ptr<const DisplayParams>);
 
-// std::unique_ptr<WindowContext> MakeGLForOhos(OHNativeWindow*, std::unique_ptr<const DisplayParams>);
-
-std::unique_ptr<WindowContext> MakeRasterForOhos(OHNativeWindow*, std::unique_ptr<const DisplayParams>);
-
 } // namespace skwindow
 
 #endif

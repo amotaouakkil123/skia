@@ -260,7 +260,7 @@ static DEFINE_string(pathstrategy, "default",
                      "Path renderer strategy to use. Allowed values are " PATHSTRATEGY_STR ".");
 #endif
 
-#if defined(SK_BUILD_FOR_ANDROID) || defined(__OHOS__)
+#if defined(SK_BUILD_FOR_ANDROID)
 #   define PATH_PREFIX "/data/local/tmp/"
 #else
 #   define PATH_PREFIX ""
@@ -287,9 +287,11 @@ static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.")
 static DEFINE_bool(stats, false, "Display stats overlay on startup.");
 static DEFINE_bool(createProtected, false, "Create a protected native backend (e.g., in EGL).");
 
-// #ifndef SK_GL
-// static_assert(false, "viewer requires GL backend for raster.")
-// #endif
+#if !defined(__OHOS__)
+#ifndef SK_GL
+static_assert(false, "viewer requires GL backend for raster.")
+#endif
+#endif
 
 static bool is_graphite_backend_type(sk_app::Window::BackendType type) {
 #if defined(SK_GRAPHITE)
@@ -547,7 +549,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomWindowLocation{0.0f, 0.0f}
     , fLastImage(nullptr)
     , fZoomUI(false)
-    , fBackendType(sk_app::Window::kGraphiteDawn_BackendType)
+    , fBackendType(sk_app::Window::kVulkan_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
     // Our UI can only tweak gamma (currently), so start out gamma-only
@@ -595,7 +597,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     initializeEventTracingForTools();
     static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
 
-    fBackendType = sk_app::Window::kGraphiteDawn_BackendType;
+    fBackendType = get_backend_type(FLAGS_backend[0]);
     fWindow = Windows::CreateNativeWindow(platformData);
 
     auto paramsBuilder = make_display_params_builder();

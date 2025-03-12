@@ -1,14 +1,11 @@
 #ifndef SKIA_APP_MANAGER_DEFINED
 #define SKIA_APP_MANAGER_DEFINED
 
-//OHOS Header
 #include <napi/native_api.h>
 #include <ace/xcomponent/native_interface_xcomponent.h>
 #include <arkui/native_node.h>
 #include <native_window/external_window.h>
-#include <js_native_api.h>
-#include <js_native_api_types.h>
-// c++ stdlib
+
 #include <string>
 #include <unordered_map>
 #include <thread>
@@ -26,6 +23,7 @@ class SkiaAppManager {
 public:
 
     ~SkiaAppManager() = default;
+
     static SkiaAppManager* GetInstance() {
         static SkiaAppManager instance;
         return &instance;

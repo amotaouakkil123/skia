@@ -143,11 +143,9 @@ skia_component("window") {
         sources += [ "win/GraphiteVulkanWindowContext_win.cpp" ]
       }
     } else if (is_ohos) {
-      sources += [
-        "ohos/VulkanWindowContext_ohos.cpp",
-      ]
+      sources += [ "ohos/VulkanWindowContext_ohos.cpp" ]
       if (skia_enable_graphite) {
-        sources += ["ohos/GraphiteVulkanWindowContext_ohos.cpp"]
+        sources += [ "ohos/GraphiteVulkanWindowContext_ohos.cpp" ]
       }
     }
   }

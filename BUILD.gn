@@ -1011,7 +1011,6 @@ optional("gpu") {
         sources += [
           "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
           "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
-          "src/gpu/ganesh/gl/android/GrGLMakeNativeInterface_android.cpp",
         ]
         libs += [ "EGL" ]
       }
@@ -3107,7 +3106,7 @@ if (skia_enable_tools) {
 
   # sk_app can work without GL but viewer always runs raster through a GL window context.
   test_app("viewer") {
-    is_shared_library = true
+    is_shared_library = is_android || is_ohos
     sources = [
       "tools/viewer/3DSlide.cpp",
       "tools/viewer/AndroidShadowsSlide.cpp",

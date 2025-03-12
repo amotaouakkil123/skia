@@ -38,14 +38,14 @@ GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const Displ
 }
 
 void GraphiteDawnWindowContext::initializeContext(int width, int height) {
-    LOGD("GraphiteDawnWindowContext::initializeContext Entering more dawn initialization");
+    LOGI("GraphiteDawnWindowContext::initializeContext");
     SkASSERT(!fContext);
 
     fWidth = width;
     fHeight = height;
 
     if (!this->onInitializeContext()) {
-        LOGD("GraphiteDawnWindowContext::initializeContext Failed to initialize a base context");
+        LOGD("GraphiteDawnWindowContext::initializeContext Failed to initialize a HarmonyOS base context");
         return;
     }
 
@@ -74,14 +74,6 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     }
 
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
-    if (fGraphiteRecorder == nullptr) {
-        LOGD("GraphiteDawnWindowContext::initializeContext failed to get a graphite recorder");
-    } else {
-        LOGD("GraphiteDawnWindowContext::Initialize context OHHHHHHHHHH NOW ITS CLEAR!");
-    }
-    if (this->graphiteRecorder() == nullptr) {
-        LOGD("GraphiteDawnWindowContext::initializeContext Broooooooo");
-    }
     SkASSERT(fGraphiteRecorder);
 }
 
@@ -101,22 +93,16 @@ void GraphiteDawnWindowContext::destroyContext() {
 }
 
 sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
-    SkASSERT(this->graphiteRecorder());
     wgpu::SurfaceTexture surfaceTexture;
     fSurface.GetCurrentTexture(&surfaceTexture);
-    SkASSERT(surfaceTexture.texture);
     auto texture = surfaceTexture.texture;
-    SkASSERT(this->graphiteRecorder());
     skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
                                           skgpu::Mipmapped::kNo,
                                           fSurfaceFormat,
                                           texture.GetUsage(),
                                           wgpu::TextureAspect::All);
+
     auto backendTex = skgpu::graphite::BackendTextures::MakeDawn(texture.Get());
-    if (this->graphiteRecorder() == nullptr) {
-        LOGD("NOW THATS JUST RIDICULOUS");
-    }
-    SkASSERT(this->graphiteRecorder());
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                   backendTex,
                                                   kRGBA_8888_SkColorType,

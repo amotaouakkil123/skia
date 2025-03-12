@@ -16,7 +16,7 @@ public:
     void onDisplayDestroyed();
 
     void setRequestedDisplayParams(std::unique_ptr<const skwindow::DisplayParams>,
-        bool allowReattach) override;
+                                   bool allowReattach) override;
 
     void setTitle(const char*) override;
     void show() override {}

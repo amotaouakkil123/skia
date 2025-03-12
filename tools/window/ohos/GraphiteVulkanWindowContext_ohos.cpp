@@ -7,24 +7,21 @@ namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGraphiteVulkanForOhos(OHNativeWindow* window,
                                                          std::unique_ptr<const DisplayParams> params) {
-    LOGD("VulkanWindowContext_ohos::MakeVulkanForOHOS Vulkan OHOS making the window!");
+    LOGI("VulkanWindowContext_ohos::MakeGraphiteVulkanForOhos");
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
-        LOGD("VulkanWindowContext_ohos::MakeVulkanForOHOS Unable to load the proper methods");
+        LOGD("VulkanWindowContext_ohos::MakeGraphiteVulkanForOhos Unable to load the vulkan methods");
         return nullptr;
     }
 
-    LOGD("VulkanWindowContext_ohos::MakeVulkanForOHOS Successfully loaded methods");
     auto createVkSurface = [window, instProc] (VkInstance instance) -> VkSurfaceKHR {
-        LOGD("VulkanWindowContext_ohos::createVkSurface inside the method");
+        LOGI("VulkanWindowContext_ohos::createVkSurface");
         PFN_vkCreateSurfaceOHOS createSurfaceOHOS =
             (PFN_vkCreateSurfaceOHOS) instProc(instance, "vkCreateSurfaceOHOS");
         
         if (!window) {
-            LOGD("VulkanWindowContext_ohos::createVkSurface Your window stinks man!");
+            LOGD("VulkanWindowContext_ohos::createVkSurface Window creation failed");
             return VK_NULL_HANDLE;
-        } else {
-            LOGD("VulkanWindowContext_ohos::createVkSurface Hell yeah your window's pretty good!");
         }
 
         VkSurfaceKHR surface;
@@ -38,10 +35,12 @@ std::unique_ptr<WindowContext> MakeGraphiteVulkanForOhos(OHNativeWindow* window,
 
         VkResult res = createSurfaceOHOS(instance, &surfaceCreateInfo,
                                          nullptr, &surface);
+
         return (VK_SUCCESS == res) ? surface : VK_NULL_HANDLE;
     };
 
     auto canPresent = [](VkInstance, VkPhysicalDevice, uint32_t) {return true;};
+
     std::unique_ptr<WindowContext> ctx(new internal::GraphiteVulkanWindowContext(std::move(params), createVkSurface, canPresent, instProc));
 
     if (!ctx->isValid()) {
