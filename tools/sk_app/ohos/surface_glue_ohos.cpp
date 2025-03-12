@@ -3,10 +3,23 @@
 #include "tools/sk_app/ohos/Window_ohos.h"
 #include <arkui/native_node_napi.h>
 #include <arkui/native_interface.h>
+#include <arkui/ui_input_event.h>
 
 #include "tools/sk_app/ohos/logger_common.h"
 
 namespace sk_app {
+
+static const std::unordered_map<int, skui::InputState> OHOS_TO_WINDOW_STATEMAP({
+    { UI_TOUCH_EVENT_ACTION_CANCEL, skui::InputState::kUp   },
+    { UI_TOUCH_EVENT_ACTION_DOWN,   skui::InputState::kDown },
+    { UI_TOUCH_EVENT_ACTION_UP,     skui::InputState::kUp   },
+    { UI_TOUCH_EVENT_ACTION_MOVE,   skui::InputState::kMove }
+});
+
+static const std::unordered_map<int, skui::Key> OHOS_TO_WINDOW_KEYMAP({
+    { OH_NATIVEXCOMPONENT_LEFT_BUTTON,  skui::Key::kLeft  },
+    { OH_NATIVEXCOMPONENT_RIGHT_BUTTON, skui::Key::kRight }
+});
 
 // NAPI variables for running the HarmonyOS application
 OH_NativeXComponent* OhosSkiaApp::fXComponent;

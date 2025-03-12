@@ -62,8 +62,6 @@ bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc) {
 #else
             return false;
 #endif
-        } else {
-            LOGD("sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs Oh yeah the methods were loaded aight!");
         }
         localInstProc = (PFN_vkGetInstanceProcAddr) SkGetProcedureAddress(vkLib,
                                                                           "vkGetInstanceProcAddr");
