@@ -1,6 +1,7 @@
 #include "tools/sk_app/ohos/surface_glue_ohos.h"
 #include "tools/sk_app/ohos/SkiaAppManager.h"
 #include "tools/sk_app/ohos/Window_ohos.h"
+#include <arkui/native_node.h>
 #include <arkui/native_node_napi.h>
 #include <arkui/native_interface.h>
 #include <arkui/ui_input_event.h>
@@ -28,6 +29,9 @@ std::mutex OhosSkiaApp::fMutex;
 std::condition_variable OhosSkiaApp::fCon;
 std::unordered_map<std::string, OhosSkiaApp*> OhosSkiaApp::fInstanceMap;
 
+static ArkUI_NodeHandle* fHandle;
+static ArkUI_NativeNodeAPI_1* fNodeApi;
+
 static std::string GetXComponentId(OH_NativeXComponent* component) {
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
@@ -39,9 +43,9 @@ static std::string GetXComponentId(OH_NativeXComponent* component) {
     return std::string(idStr);
 }
 
-OhosSkiaApp::OhosSkiaApp(std::string& id)
+OhosSkiaApp::OhosSkiaApp(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi)
     : fId(id) {
-    LOGD("OhosSkiaApp::OhosSkiaApp");
+    LOGI("OhosSkiaApp::OhosSkiaApp");
     auto renderCallback = OhosSkiaApp::GetNXComponentCallback();
     renderCallback->OnSurfaceCreated = OnSurfaceCreatedCB;
     renderCallback->OnSurfaceChanged = OnSurfaceChangedCB;
@@ -78,10 +82,12 @@ void OhosSkiaApp::RenderThread() {
     }
 }
 
-OhosSkiaApp* OhosSkiaApp::GetInstance(std::string& id) {
+OhosSkiaApp* OhosSkiaApp::GetInstance(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi) {
     LOGI("OhosSkiaApp::GetInstance");
     if (fInstanceMap.find(id) == fInstanceMap.end()) {
-        OhosSkiaApp* instance = new OhosSkiaApp(id);
+        fHandle = handle;
+        fNodeApi = nodeApi;
+        OhosSkiaApp* instance = new OhosSkiaApp(id, handle, nodeApi);
         fInstanceMap[id] = instance;
     }
     return fInstanceMap[id];
@@ -90,7 +96,7 @@ OhosSkiaApp* OhosSkiaApp::GetInstance(std::string& id) {
 void OhosSkiaApp::SetInstance(std::string& id) {
     LOGI("OhosSkiaApp::SetInstance");
     if (fInstanceMap.find(id) == fInstanceMap.end()) {
-        OhosSkiaApp* instance = new OhosSkiaApp(id);
+        OhosSkiaApp* instance = new OhosSkiaApp(id, fHandle, fNodeApi);
         fInstanceMap[id] = instance;
     }
 }
@@ -98,28 +104,28 @@ void OhosSkiaApp::SetInstance(std::string& id) {
 void OhosSkiaApp::OnSurfaceCreatedCB(OH_NativeXComponent* component, void* window) {
     LOGI("OhosSkiaApp::OnSurfaceCreatedCB");
     std::string id = GetXComponentId(component);
-    auto render = OhosSkiaApp::GetInstance(id);
+    auto render = OhosSkiaApp::GetInstance(id, fHandle, fNodeApi);
     render->OnSurfaceCreated(component, window);
 }
 
 void OhosSkiaApp::OnSurfaceChangedCB(OH_NativeXComponent* component, void* window) {
     LOGI("OhosSkiaApp::OnSurfaceDestroyedCB");
     std::string id = GetXComponentId(component);
-    auto render = OhosSkiaApp::GetInstance(id);
+    auto render = OhosSkiaApp::GetInstance(id, fHandle, fNodeApi);
     render->OnSurfaceChanged(component, window);
 }
 
 void OhosSkiaApp::OnSurfaceDestroyedCB(OH_NativeXComponent* component, void* window) {
     LOGI("OhosSkiaApp::OnSurfaceDestroyedCB");
     std::string id = GetXComponentId(component);
-    auto render = OhosSkiaApp::GetInstance(id);
+    auto render = OhosSkiaApp::GetInstance(id, fHandle, fNodeApi);
     render->OnSurfaceDestroyed(component, window);
 }
 
 void OhosSkiaApp::DispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
     LOGI("OhosSkiaApp::DispatchTouchEventCB");
     std::string id = GetXComponentId(component);
-    auto render = OhosSkiaApp::GetInstance(id);
+    auto render = OhosSkiaApp::GetInstance(id, fHandle, fNodeApi);
     render->DispatchTouchEvent(component, window);
 }
 
@@ -151,7 +157,11 @@ void OhosSkiaApp::OnSurfaceChanged(OH_NativeXComponent* component, void* window)
 }
 
 void OhosSkiaApp::DispatchTouchEvent(OH_NativeXComponent* component, void* window) {
-    // E_NOT_IMPLEMENTED
+    LOGI("OhosSkiaApp::DispatchTouchEvent");
+
+    int32_t ret = OH_NativeXComponent_GetTouchEvent(component, window, &fTouchEvent);
+    auto touchEvent = OHOS_TO_WINDOW_STATEMAP.find(fTouchEvent.type);
+    fWindow->onTouch(fTouchEvent.id, touchEvent->second, fTouchEvent.screenX, fTouchEvent.screenY);
 }
 
 void OhosSkiaApp::OnSurfaceDestroyed(OH_NativeXComponent* component, void* window) {
@@ -161,7 +171,12 @@ void OhosSkiaApp::OnSurfaceDestroyed(OH_NativeXComponent* component, void* windo
 }
 
 void OhosSkiaApp::setTitle(const char* title) const {
-    // E_NOT_IMPLEMENTED
+    // Have to find a way to change the title form the XComponent...
+    // Fetch the XComponent
+    // Create a struct with the new title
+    // Call nodeAPI->setAttribute to modify the native application
+    ArkUI_AttributeItem item = {{0}, 1, title};
+    fNodeApi->setAttribute(*fHandle, NODE_TEXT_INPUT_TEXT, &item);
 }
 
 void OhosSkiaApp::setUIState(const char* state) const {

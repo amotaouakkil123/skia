@@ -5,6 +5,7 @@
 #include <ace/xcomponent/native_interface_xcomponent.h>
 #include <arkui/native_node.h>
 #include <native_window/external_window.h>
+#include <napi/native_api.h>
 
 #include <string>
 #include <unordered_map>
@@ -52,7 +53,7 @@ public:
     Application* fApp;
     Window* fWindow;
 
-    OhosSkiaApp(std::string& id);
+    OhosSkiaApp(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi);
 
     void postMessage(const Message& message) const;
     void readMessage(Message* message) const;
@@ -75,7 +76,10 @@ public:
     static void OnSurfaceDestroyedCB(OH_NativeXComponent* component, void* window);
     static void DispatchTouchEventCB(OH_NativeXComponent* component, void* window);
 
-    static OhosSkiaApp* GetInstance(std::string& id);
+    static OhosSkiaApp* GetInstance(std::string& id, 
+                                    ArkUI_NodeHandle* handle, 
+                                    ArkUI_NativeNodeAPI_1* nodeApi);
+
     void SetInstance(std::string& id);
 
 private:
@@ -86,6 +90,7 @@ private:
     // Contain all the instance that make the OHOS interactions work
     static OH_NativeXComponent* fXComponent;
     static OH_NativeXComponent_Callback fCallback;
+    OH_NativeXComponent_TouchEvent fTouchEvent;
 
     bool isAppQuit = false;
     std::string fId;

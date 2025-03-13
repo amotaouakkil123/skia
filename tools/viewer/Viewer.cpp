@@ -1410,11 +1410,6 @@ void Viewer::updateTitle() {
     }
 
     auto params = fWindow->getRequestedDisplayParams();
-    if (params == nullptr) {
-        LOGD("Viewer::updateTitle We have bad display parameters");
-    } else {
-        LOGD("Viewer::updateTitle We have good display parameters");
-    }
 
     if (fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
         switch (params->surfaceProps().pixelGeometry()) {
@@ -1450,15 +1445,6 @@ void Viewer::updateTitle() {
 
     if (is_graphite_backend_type(fBackendType)) {
 #if defined(SK_GRAPHITE)
-        // if (fWindow == nullptr) {
-        //     LOGD("No window is initialized!");
-        // }
-        // if (fWindow->getRequestedDisplayParams() == nullptr) {
-        //     LOGD("We do not get display parameters");
-        // }
-        // if (fWindow->getRequestedDisplayParams()->graphiteTestOptions()) {
-        //     LOGD("We even get test options!!!!");
-        // }
         if (params == nullptr) {
             LOGD("Viewer::updateTitle Params is invalid");
         }
@@ -2097,6 +2083,7 @@ SkPoint Viewer::mapEvent(float x, float y) {
 }
 
 bool Viewer::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
+    LOGI("Viewer::onTouch");
     if (GestureDevice::kMouse == fGestureDevice) {
         return false;
     }
