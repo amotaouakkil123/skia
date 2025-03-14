@@ -53,7 +53,7 @@ public:
     Application* fApp;
     Window* fWindow;
 
-    OhosSkiaApp(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi);
+    OhosSkiaApp(std::string& id, ArkUI_NodeHandle handle, ArkUI_NativeNodeAPI_1* nodeApi);
 
     void postMessage(const Message& message) const;
     void readMessage(Message* message) const;
@@ -77,7 +77,7 @@ public:
     static void DispatchTouchEventCB(OH_NativeXComponent* component, void* window);
 
     static OhosSkiaApp* GetInstance(std::string& id, 
-                                    ArkUI_NodeHandle* handle, 
+                                    ArkUI_NodeHandle handle, 
                                     ArkUI_NativeNodeAPI_1* nodeApi);
 
     void SetInstance(std::string& id);

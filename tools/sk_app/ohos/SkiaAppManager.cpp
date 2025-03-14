@@ -41,11 +41,6 @@ bool SkiaAppManager::Init(napi_env env, napi_value exports) {
     // Get nativeXComponent
     napi_unwrap(env, exportInstance, reinterpret_cast<void**>(&nativeXComponent));
 
-    // Can acquire title handle...
-    ArkUI_NodeHandle* handle;
-    // napi_value -> Supposed to be the node that I am building...
-    OH_ArkUI_GetNodeHandleFromNapiValue(env, exports, handle);
-
     char idStr[OH_XCOMPONENT_ID_LEN_MAX + 1] = {};
     uint64_t idSize = OH_XCOMPONENT_ID_LEN_MAX + 1;
     // Get nativeXComponent Id
@@ -57,13 +52,25 @@ bool SkiaAppManager::Init(napi_env env, napi_value exports) {
         OH_ArkUI_QueryModuleInterfaceByName(ARKUI_NATIVE_NODE, "ArkUI_NativeNodeAPI_1")
     );
 
+    ArkUI_NodeHandle handle;
+    handle = nodeAPI->createNode(ARKUI_NODE_TEXT);
+
+    ArkUI_AttributeItem fontItem;
+    ArkUI_NumberValue value1[] = {{.f32 = 15},};
+    ArkUI_AttributeItem item1 = {value1, 1};
+    nodeAPI->setAttribute(handle, NODE_TEXT_FONT, &item1);
+
+    ArkUI_AttributeItem textItem;
+    textItem.string = "title";
+    nodeAPI->setAttribute(handle, NODE_TEXT_CONTENT, &textItem);
+
     OhosSkiaApp* skiaInstance = GetRender(id, handle, nodeAPI);
     skiaInstance->SetNativeXComponent(nativeXComponent);
 
     return true;
 }
 
-OhosSkiaApp* SkiaAppManager::GetRender(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi) {
+OhosSkiaApp* SkiaAppManager::GetRender(std::string& id, ArkUI_NodeHandle handle, ArkUI_NativeNodeAPI_1* nodeApi) {
     if (ohosSkiaMap.find(id) == ohosSkiaMap.end()) {
         OhosSkiaApp* instance = OhosSkiaApp::GetInstance(id, handle, nodeApi);
         ohosSkiaMap[id] = instance;

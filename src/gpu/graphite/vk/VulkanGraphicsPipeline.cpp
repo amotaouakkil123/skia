@@ -627,7 +627,6 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
                                             &layout));
 
     // DescriptorSetLayouts can be deleted after the pipeline layout is created.
-    destroy_desc_set_layouts(sharedContext, setLayouts);
 
     return result == VK_SUCCESS ? layout : VK_NULL_HANDLE;
 }

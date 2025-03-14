@@ -31,7 +31,7 @@ public:
     
     bool Init(napi_env env, napi_value exports);
     void SetNativeXComponent(std::string& id, OH_NativeXComponent* nativeXComponent);
-    OhosSkiaApp* GetRender(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi);
+    OhosSkiaApp* GetRender(std::string& id, ArkUI_NodeHandle handle, ArkUI_NativeNodeAPI_1* nodeApi);
 
 private:
 

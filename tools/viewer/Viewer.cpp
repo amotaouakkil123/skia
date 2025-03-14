@@ -564,6 +564,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fTileScale{0.25f, 0.25f}
     , fPerspectiveMode(kPerspective_Off)
 {
+    LOGI("Viewer::Viewer");
     SkGraphics::Init();
 #if defined(SK_ENABLE_SVG)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
@@ -593,11 +594,22 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #endif
 
 
-    LOGD("Viewer::Viewer Creating a viewer instance");
+    LOGI("Viewer::Viewer Creating a viewer instance");
     initializeEventTracingForTools();
     static SkTaskGroup::Enabler kTaskGroupEnabler(FLAGS_threads);
 
     fBackendType = get_backend_type(FLAGS_backend[0]);
+
+    if (fBackendType == sk_app::Window::kVulkan_BackendType) {
+        LOGI("Correctly setup the backend to be Ganesh");
+    } else if (fBackendType == sk_app::Window::kGraphiteVulkan_BackendType) {
+        LOGI("Correctly setup the backend to be Graphite Native");
+    } else if (fBackendType == sk_app::Window::kGraphiteVulkan_BackendType) {
+        LOGI("Correctly setup the backend to be Graphite Dawn Vulkan");
+    } else {
+        LOGI("I did smth idk");
+    }
+
     fWindow = Windows::CreateNativeWindow(platformData);
 
     auto paramsBuilder = make_display_params_builder();
@@ -625,17 +637,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     paramsBuilder.graphiteTestOptions(gto);
 #endif
     fWindow->setRequestedDisplayParams(paramsBuilder.build());
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer For some reason, display parameters are wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are great!");
-    }
-
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer On second call, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great!");
-    }
     fDisplay = paramsBuilder.build();
     fRefresh = FLAGS_redraw;
 
@@ -653,12 +654,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fWindow->pushLayer(this);
     fWindow->pushLayer(&fStatsLayer);
     fWindow->pushLayer(&fImGuiLayer);
-
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer On 655 call, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great 655!");
-    }
 
     // add key-bindings
     fCommands.addCommand(' ', "GUI", "Toggle Debug GUI", [this]() {
@@ -962,21 +957,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->inval();
     });
 
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer On 963, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great 963!");
-    }
     // set up slides
     this->initSlides();
     if (FLAGS_list) {
         this->listNames();
-    }
-
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer On 974, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great 974!");
     }
 
     fPerspectivePoints[0].set(0, 0);
@@ -985,37 +969,15 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fPerspectivePoints[3].set(1, 1);
     fAnimTimer.run();
 
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer 986, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great 986!");
-    }
-
     auto gamutImage = ToolUtils::GetResourceAsImage("images/gamut.png");
     if (gamutImage) {
         fImGuiGamutPaint.setShader(gamutImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear)));
     }
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
 
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer On 998, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great 998!");
-    }
-
     fWindow->attach(backend_type_for_window(fBackendType));
     this->initGpuTimer();
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer On 1006, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great 1006!");
-    }
     this->setCurrentSlide(this->startupSlide());
-    if (fWindow->getRequestedDisplayParams() == nullptr) {
-        LOGD("Viewer::Viewer On 1012, the params wrong");
-    } else {
-        LOGD("Viewer::Viewer The display params are still great 1012!");
-    }
 }
 
 static sk_sp<SkData> data_from_file(FILE* fp) {

@@ -29,7 +29,7 @@ std::mutex OhosSkiaApp::fMutex;
 std::condition_variable OhosSkiaApp::fCon;
 std::unordered_map<std::string, OhosSkiaApp*> OhosSkiaApp::fInstanceMap;
 
-static ArkUI_NodeHandle* fHandle;
+static ArkUI_NodeHandle fHandle;
 static ArkUI_NativeNodeAPI_1* fNodeApi;
 
 static std::string GetXComponentId(OH_NativeXComponent* component) {
@@ -43,7 +43,7 @@ static std::string GetXComponentId(OH_NativeXComponent* component) {
     return std::string(idStr);
 }
 
-OhosSkiaApp::OhosSkiaApp(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi)
+OhosSkiaApp::OhosSkiaApp(std::string& id, ArkUI_NodeHandle handle, ArkUI_NativeNodeAPI_1* nodeApi)
     : fId(id) {
     LOGI("OhosSkiaApp::OhosSkiaApp");
     auto renderCallback = OhosSkiaApp::GetNXComponentCallback();
@@ -82,7 +82,7 @@ void OhosSkiaApp::RenderThread() {
     }
 }
 
-OhosSkiaApp* OhosSkiaApp::GetInstance(std::string& id, ArkUI_NodeHandle* handle, ArkUI_NativeNodeAPI_1* nodeApi) {
+OhosSkiaApp* OhosSkiaApp::GetInstance(std::string& id, ArkUI_NodeHandle handle, ArkUI_NativeNodeAPI_1* nodeApi) {
     LOGI("OhosSkiaApp::GetInstance");
     if (fInstanceMap.find(id) == fInstanceMap.end()) {
         fHandle = handle;
@@ -136,8 +136,8 @@ void OhosSkiaApp::OnSurfaceCreated(OH_NativeXComponent* component, void* window)
             "viewer",
             "--skps",
             "/data/storage/el1/bundle/entry/resources/resfile/skps",
-            "--config",
-            "vk"
+            "--backend",
+            "grdawn"
         };
 
         fApp = Application::Create(std::size(gCmdLine),
@@ -175,8 +175,12 @@ void OhosSkiaApp::setTitle(const char* title) const {
     // Fetch the XComponent
     // Create a struct with the new title
     // Call nodeAPI->setAttribute to modify the native application
-    ArkUI_AttributeItem item = {{0}, 1, title};
-    fNodeApi->setAttribute(*fHandle, NODE_TEXT_INPUT_TEXT, &item);
+    ArkUI_AttributeItem item;
+    item.string = title;
+    if (fHandle == nullptr) {
+        LOGI("OhosSkiaApp::setTitle The node handle is invalid");
+    }
+    fNodeApi->setAttribute(fHandle, NODE_TEXT_CONTENT, &item);
 }
 
 void OhosSkiaApp::setUIState(const char* state) const {
