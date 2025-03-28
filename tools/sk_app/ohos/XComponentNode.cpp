@@ -97,7 +97,7 @@ void XComponentNode::RenderThread() {
 }
 
 void XComponentNode::AddChild(XComponentNode* child) {
-  api()->addChild(handle(), child->handle());
+    api()->addChild(handle(), child->handle());
 }
 
 void XComponentNode::OnSurfaceCreated(void* window) {

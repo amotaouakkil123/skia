@@ -1,10 +1,11 @@
 #ifndef NAPI_MANAGER_H_
 #define NAPI_MANAGER_H_
 
+#define NODE_ADDON_API_DISABLE_DEPRECATED
+
+#include "napi.h"
 #include "tools/sk_app/ohos/XComponentNode.h"
 
-#define NODE_ADDON_API_DISABLE_DEPRECATED
-#include "napi.h"
 
 namespace sk_app {
 

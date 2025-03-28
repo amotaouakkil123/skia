@@ -8,7 +8,7 @@ namespace sk_app {
 Window* Windows::CreateNativeWindow(void* platformData) {
     LOGI("Windows::CreateNativeWindow");
     Window_ohos* window = new Window_ohos();
-    if (!window->init((OhosSkiaApp*)platformData)) {
+    if (!window->init((XComponentNode::OhosSkiaApp*)platformData)) {
         LOGD("Windows::Initialization of HarmonyOS window failed");
         delete window;
         return nullptr;
@@ -17,7 +17,7 @@ Window* Windows::CreateNativeWindow(void* platformData) {
     return window;
 }
 
-bool Window_ohos::init(OhosSkiaApp* ohosSkiaApp) {
+bool Window_ohos::init(XComponentNode::OhosSkiaApp* ohosSkiaApp) {
     SkASSERT(ohosSkiaApp);
     fOhosSkiaApp = ohosSkiaApp;
     fOhosSkiaApp->fWindow = this;

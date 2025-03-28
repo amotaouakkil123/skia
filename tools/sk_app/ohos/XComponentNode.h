@@ -5,11 +5,16 @@
 #include <arkui/native_node.h>
 #include <native_window/external_window.h>
 
+#include "tools/sk_app/ohos/NapiManager.h"
+#include "tools/sk_app/ohos/NodeContent.h"
 #include "tools/sk_app/ohos/log.h"
+#include "tools/sk_app/Application.h"
+#include "tools/sk_app/Window.h"
 
 #include <deque>
 #include <memory>
 #include <string>
+#include <thread>
 
 namespace sk_app {
 
@@ -19,6 +24,7 @@ public:
     struct OhosSkiaApp {
         Application* fApp;
         Window* fWindow;
+        OH_NativeXComponent* fXComponent;
     
         void setTitle(const char* title) const;
         void setUIState(const char* state) const;

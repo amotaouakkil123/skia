@@ -11,7 +11,7 @@ public:
     Window_ohos() : Window() {}
     ~Window_ohos() override {}
 
-    bool init(OhosSkiaApp* ohosSkiaApp);
+    bool init(XComponentNode::OhosSkiaApp* ohosSkiaApp);
     void initDisplay(OHNativeWindow* window);
     void onDisplayDestroyed();
 

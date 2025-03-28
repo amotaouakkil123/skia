@@ -2162,7 +2162,7 @@ if (skia_enable_tools) {
     frameworks = []
 
     if (is_ohos) {
-      sources += ["tools/sk_app/ohos/logger_common.h"]
+      sources += ["tools/sk_app/ohos/log.h"]
     }
 
     if (skia_use_gl) {
@@ -3057,11 +3057,16 @@ if (skia_enable_tools) {
       frameworks += [ "QuartzCore.framework" ]
     } else if (is_ohos) {
       sources += [
-        "tools/sk_app/ohos/logger_common.h",
-        "tools/sk_app/ohos/surface_glue_ohos.cpp",
-        "tools/sk_app/ohos/surface_glue_ohos.h",
-        "tools/sk_app/ohos/SkiaAppManager.h",
-        "tools/sk_app/ohos/SkiaAppManager.cpp",
+        "tools/sk_app/ohos/log.h",
+        "tools/sk_app/ohos/NapiManager.cpp",
+        "tools/sk_app/ohos/NapiManager.h",
+        "tools/sk_app/ohos/NodeContent.h",
+        "tools/sk_app/ohos/NodeContent.cpp",
+        "tools/sk_app/ohos/XComponentNode.h",
+        "tools/sk_app/ohos/XComponentNode.cpp",
+        "tools/sk_app/ohos/napi_init.cpp",
+        "tools/sk_app/ohos/napi-inl.h",
+        "tools/sk_app/ohos/napi.h",
         "tools/sk_app/ohos/Window_ohos.h",
         "tools/sk_app/ohos/Window_ohos.cpp"
       ]
