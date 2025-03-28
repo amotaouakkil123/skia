@@ -149,7 +149,7 @@
 #include "include/codec/SkRawDecoder.h"
 #endif
 
-#include "tools/sk_app/ohos/logger_common.h"
+#include "tools/sk_app/ohos/log.h"
 
 using namespace skia_private;
 using skwindow::DisplayParams;

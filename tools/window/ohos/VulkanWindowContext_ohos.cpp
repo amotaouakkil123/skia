@@ -1,7 +1,7 @@
 #include "tools/window/ohos/WindowContextFactory_ohos.h"
 #include "tools/window/VulkanWindowContext.h"
 #include "tools/gpu/vk/VkTestUtils.h"
-#include "tools/sk_app/ohos/logger_common.h"
+#include "tools/sk_app/ohos/log.h"
 
 namespace skwindow {
 

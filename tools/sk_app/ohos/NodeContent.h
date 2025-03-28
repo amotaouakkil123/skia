@@ -7,7 +7,7 @@
 #ifndef NODECONTENT_H
 #define NODECONTENT_H
 
-#include "tools/sk_app/ohos/surface_glue_ohos.h"
+#include "tools/sk_app/ohos/XComponentNode.h"
 
 #include <arkui/native_node.h>
 

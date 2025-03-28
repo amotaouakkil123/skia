@@ -4,7 +4,7 @@
 #include "tools/window/GraphiteDawnWindowContext.h"
 #include "tools/window/ohos/WindowContextFactory_ohos.h"
 
-#include "tools/sk_app/ohos/logger_common.h"
+#include "tools/sk_app/ohos/log.h"
 
 using skwindow::DisplayParams;
 using skwindow::internal::GraphiteDawnWindowContext;

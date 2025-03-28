@@ -1,7 +1,7 @@
 #include "tools/sk_app/ohos/Window_ohos.h"
 #include "tools/window/WindowContext.h"
 #include "tools/window/ohos/WindowContextFactory_ohos.h"
-#include "tools/sk_app/ohos/logger_common.h"
+#include "tools/sk_app/ohos/log.h"
 
 namespace sk_app {
 

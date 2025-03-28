@@ -6,7 +6,7 @@
  */
 
 #include "tools/graphite/GraphiteToolUtils.h"
-#include "tools/sk_app/ohos/logger_common.h"
+#include "tools/sk_app/ohos/log.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"

@@ -11,7 +11,7 @@
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/graphite/TestOptions.h"
 #include "tools/window/DisplayParams.h"
-#include "tools/sk_app/ohos/logger_common.h"
+#include "tools/sk_app/ohos/log.h"
 
 namespace skwindow {
 

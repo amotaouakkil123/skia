@@ -2,7 +2,7 @@
 #define Window_ohos_DEFINED
 
 #include "tools/sk_app/Window.h"
-#include "tools/sk_app/ohos/surface_glue_ohos.h"
+#include "tools/sk_app/ohos/XComponentNode.h"
 
 namespace sk_app {
 
@@ -29,7 +29,7 @@ public:
     bool scaleContentToFit() const override { return true; }
 
 private:
-    OhosSkiaApp* fOhosSkiaApp = nullptr;
+    XComponentNode::OhosSkiaApp* fOhosSkiaApp = nullptr;
     BackendType  fBackendType;
 };
 

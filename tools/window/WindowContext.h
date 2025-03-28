@@ -11,7 +11,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "tools/window/DisplayParams.h"
-#include "tools/sk_app/ohos/logger_common.h"
+#include "tools/sk_app/ohos/log.h"
 
 class GrDirectContext;
 class SkSurface;
