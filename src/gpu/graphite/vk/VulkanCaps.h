@@ -119,8 +119,6 @@ public:
 
     bool mustLoadFullImageForMSAA() const { return fMustLoadFullImageForMSAA; }
 
-    bool getTimestampPeriod() const { return fTimestampPeriod; }
-
 private:
     void init(const ContextOptions&,
               const skgpu::VulkanInterface*,
@@ -296,8 +294,6 @@ private:
 
     // Flags to enable workarounds for driver bugs
     bool fMustLoadFullImageForMSAA = false;
-
-    float fTimestampPeriod;
 };
 
 } // namespace skgpu::graphite

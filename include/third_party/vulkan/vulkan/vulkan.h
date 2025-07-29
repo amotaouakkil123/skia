@@ -47,7 +47,7 @@
 #include "vulkan_win32.h"
 #endif
 
-#ifndef __OHOS__
+#if !defined(__OHOS__)
 #ifdef VK_USE_PLATFORM_XCB_KHR
 #include <xcb/xcb.h>
 #include "vulkan_xcb.h"

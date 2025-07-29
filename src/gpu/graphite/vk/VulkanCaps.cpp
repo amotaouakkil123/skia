@@ -31,8 +31,6 @@
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
-#include "tools/sk_app/ohos/ohos_log.h"
-
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
 #endif
@@ -151,9 +149,6 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     // Unlike D3D, WebGPU, and Metal, the Vulkan NDC coordinate space is aligned with the top-left
     // Y-down coordinate space of the viewport.
     fNDCYAxisPointsDown = true;
-    
-    LOGD("Setting the period: %f", physDevProperties.limits.timestampPeriod);
-    fTimestampPeriod = physDevProperties.limits.timestampPeriod;
 
     populate_resource_binding_reqs(fResourceBindingReqs);
 

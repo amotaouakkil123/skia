@@ -103,14 +103,14 @@ else
     exit 1
 fi
 
-if [ -d "$third_party_dawn_path" ]; then
+# if [ -d "$third_party_dawn_path" ]; then
 
-    cp modified_external_third_party/dawn.json $third_party_dawn_path/dawn.json
-    cp modified_external_third_party/dawn_wire.json $third_party_dawn_path/dawn_wire.json
-else
-    echo "Cannot $third_party_dawn_path, make sure you have successfully run \`python3 tools/git-sync-deps\`"
-    exit 1
-fi
+#     cp modified_external_third_party/dawn.json $third_party_dawn_path/dawn.json
+#     cp modified_external_third_party/dawn_wire.json $third_party_dawn_path/dawn_wire.json
+# else
+#     echo "Cannot $third_party_dawn_path, make sure you have successfully run \`python3 tools/git-sync-deps\`"
+#     exit 1
+# fi
 
 if [ -d "$third_party_partition_alloc" ]; then
 
@@ -175,6 +175,7 @@ bin/gn gen "$default_output_path" --args="
     is_official_build=false
     target_os=\"ohos\"
     target_cpu=\"arm64\"
+    skia_use_cpp20=true
     skia_enable_graphite=true
     skia_use_gl=false
     skia_use_egl=false
