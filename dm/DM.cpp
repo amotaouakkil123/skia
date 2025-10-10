@@ -1688,10 +1688,16 @@ int main(int argc, char** argv) {
     for (Task& task : serial) { Task::Run(task); }
 
 #if !defined(SK_DISABLE_LEGACY_TESTS)
-    for (skiatest::Test& test : *gGaneshTests) { run_ganesh_test(test, grCtxOptions); }
+    for (skiatest::Test& test : *gGaneshTests) { 
+        TRACE_EVENT0("rendering", "DM::RunGaneshTest");
+        run_ganesh_test(test, grCtxOptions); 
+    }
 
 #if defined(SK_GRAPHITE)
-    for (skiatest::Test& test : *gGraphiteTests) { run_graphite_test(test, graphiteOptions); }
+    for (skiatest::Test& test : *gGraphiteTests) { 
+        TRACE_EVENT0("rendering", "DM::RunGraphiteTest");
+        run_graphite_test(test, graphiteOptions); 
+    }
 #endif
 #endif // !SK_DISABLE_LEGACY_TESTS
 

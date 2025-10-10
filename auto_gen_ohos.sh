@@ -181,6 +181,7 @@ bin/gn gen "$default_output_path" --args="
     skia_use_vulkan=true
     skia_use_dawn=true
     dawn_enable_vulkan=true
+    skia_use_perfetto=true
     cc=\"$cc_path\"
     cxx=\"$cxx_path\"
     extra_cflags=[
