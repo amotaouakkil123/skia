@@ -1689,13 +1689,13 @@ int main(int argc, char** argv) {
 
 #if !defined(SK_DISABLE_LEGACY_TESTS)
     for (skiatest::Test& test : *gGaneshTests) { 
-        TRACE_EVENT0("rendering", "DM::RunGaneshTest");
+        TRACE_EVENT0("rendering", test.name);
         run_ganesh_test(test, grCtxOptions); 
     }
 
 #if defined(SK_GRAPHITE)
     for (skiatest::Test& test : *gGraphiteTests) { 
-        TRACE_EVENT0("rendering", "DM::RunGraphiteTest");
+        TRACE_EVENT0("rendering", test.name);
         run_graphite_test(test, graphiteOptions); 
     }
 #endif
